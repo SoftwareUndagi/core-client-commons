@@ -10,5 +10,10 @@
     "plain-js"
   ],
   "author": "Gede Sutarsa",
-  "license": "ISC"
+  "license": "ISC" , 
+  "dependencies": {
+    "@types/react": "^16.0.25",
+    "react": "^16.1.1"
+   
+  }
 }

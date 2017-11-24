@@ -140,3 +140,157 @@ export function makeIsoDate (date : Date ) : string {
     let s : string = date.getFullYear() + '-' + makeZeroLeadedString( date.getMonth() + 1) + '-' + makeZeroLeadedString(date.getDate()) ; 
     return s ;      
 } 
+
+
+
+/**
+ * membuat iso datetime
+ * @param date date untuk di proses
+ */
+export function makeIsoDateTime (date : Date) : string {
+    if ( isNull(date)) {
+        return null ; 
+    }
+    let s : string = date.getFullYear() + '-' + makeZeroLeadedString( date.getMonth() + 1) + '-' + makeZeroLeadedString(date.getDate()) +' ' + 
+        makeZeroLeadedString(date.getHours()) + ':' + makeZeroLeadedString(date.getMinutes()) + ':' + makeZeroLeadedString(date.getSeconds()) +'.' + date.getMilliseconds() ; 
+    return s ;  
+}
+
+
+
+/**
+ * generate salinan object . semua object dengan tipe date akan di ganti menjadi string. ini di lakukan karena pada saat transmisi data sering ada perbedaan timestamp
+ * @param data data yang perlu di clone dan di konversi
+ */
+export function cloneObjectMakeDateObjectStringVariable ( data : any  ) :  any {
+    if ( isNull(data)){
+        return null ; 
+    }
+    let sln : any = {} ; 
+    __deepCloneWorkerRecursive( data , sln, true ); 
+    return sln ; 
+}
+
+
+
+/**
+ * salin data dari source ke dest. field by field
+ * @param source sumber data
+ * @param dest ke mana data akan di salin
+ */
+export function copyProperty ( source : any , dest : any , exclusions? : string [] ) {
+    if ( isNull(source) || isNull(dest)) {
+        return ;
+    }
+    let actualExc : string [] = [] ;
+    let nextLvlExcl : {[id:string] : string[] } ={} ;  
+    if ( !isNull(exclusions)){
+        for ( let ex of exclusions) {
+            let idxDot : number = ex.indexOf('.');
+            if ( idxDot>=0){ // ok exclude di masukan dalam level berikutnya
+                let arrKey : string[] = ex.split('.');
+                let prfx: string = arrKey[0]; 
+                arrKey.splice(0,1); 
+                let next : string = arrKey.join('.');
+                let arrContr : string[] = nextLvlExcl[prfx]||null ; 
+                if ( isNull(arrContr)){
+                    arrContr=[] ; 
+                    nextLvlExcl[prfx] = arrContr;
+                }
+                arrContr.push(next);
+            }else{// ini tipe flat
+                actualExc.push( ex);
+            }
+        }
+    }
+    let keys : string [] = Object.keys(source) ;
+    for ( var k of keys) {
+        if ( actualExc.indexOf(k)>=0){
+            continue ; 
+        }
+        let o : any = source[k] ; 
+        if ( isNull(o)) {
+            try {
+                delete dest[k] ;
+                continue ; 
+            }catch ( exc ) {
+                console.log('[CommmonUtils.copyProperty] gagal hapus field : ' , k ,' dari object : ' , dest , '.error :' , exc  );
+            }
+        }else{
+            if ( typeof o ==='object'){
+                if ( !isNull(o.getDate)){
+                    dest[k] = source;
+                    continue ; 
+                }else{
+                    dest[k] = {} ; 
+                    copyProperty(o , dest[k] , nextLvlExcl[k] );
+                    continue ; 
+                }
+            }else{
+                dest[k] = o ;
+                continue ;  
+            }
+        }
+    }
+}
+
+
+/**
+ * read nested variable
+ */
+export function readNested ( variable : any , path : string ) : any {
+    try {
+        if ( isNull(variable)){
+            return null ; 
+        }
+        if ( isNull(path) || path.length ==0) {
+            return null ; 
+        }
+        if ( path.indexOf('.') ==-1) {
+            return variable[path] ; 
+        }
+        let arr: string [] = path.split('.');
+        let currData : any = variable ;  
+        for ( var p of arr ) {
+            currData = currData[p] ; 
+            if ( isNull(currData)){
+                return null ; 
+            }
+        }
+        return currData ;
+
+    }catch ( exc ) {
+        console.warn('Gagal read data , error : ' , exc);
+        
+
+    }
+    
+}
+
+
+
+/**
+ * menaruh data dengan deep scan 
+ */
+export function setValueHelper ( variable : any , path : string , value : any )  {
+    if ( isNull(variable)){
+        return  ; 
+    }
+    if ( path.indexOf('.') ==-1) {
+        variable[path] = value;
+        return ;  
+    }
+    let arr: string [] = path.split('.');
+    let ltstKey : string = arr[arr.length-1] ;
+    arr.splice(arr.length-1 , 1);
+    let currData : any = variable ;  
+    for ( var p of arr ) {
+        if ( isNull(currData[p])){
+             currData[p]={};
+        } 
+        currData = currData[p] ;
+    }
+    currData[ltstKey] = value ; 
+}
+
+

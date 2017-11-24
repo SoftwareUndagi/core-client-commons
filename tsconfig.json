@@ -4,9 +4,11 @@
         "module": "system" , 
         "outFile": "./dist/index.js", 
         "declaration": true , 
-        "sourceMap": true
+        "sourceMap": true , 
+        "jsx": "react"
     } , 
     "files": [
-        "./index.ts"
+        "./index.ts" , 
+        "./node_modules/@types/react/index.d.ts"
     ]
 }
