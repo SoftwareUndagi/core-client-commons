@@ -16,6 +16,19 @@ export interface LoadLookupFromCacheDataWrapper {
 
 
 /**
+     * data dari cache( localstorage)
+     */
+export interface CachedLookupDefinition {
+    id: string;
+    version: string;
+    lookupData: CommonCommunicationData.CommonLookupValue[];
+    timestamp?: Date;
+}
+
+
+
+
+/**
      * interface untuk element dengan lookup enabled
      */
 export interface LOVEnabledComponent {
@@ -47,6 +60,13 @@ export interface ListOfValueManager {
      * membaca lookup dengan lov id + detail code
     */
     getLookup(lookupId: string, valueCode: string): CommonCommunicationData.CommonLookupValue;
+
+
+
+    /**
+     * nama untuk debug
+     */
+    ownerNameForDebug : string  ; 
 
     /**
      * register lookup
@@ -87,17 +107,19 @@ export interface ListOfValueManager {
      */
     loadFromCacheAndGenerateLookupRequestWithPromise(ids: string[] /*onComplete : (reqData : CommonCommunicationData.LookupRequestData []) => any*/): Promise<LoadLookupFromCacheDataWrapper>;
 
-     /**
-     * alias dari loadFromCacheAndGenerateLookupRequest
-     */
-    loadFromCacheAndGenerateLookupRequestUsingPromiseAlias (  ) : Promise<CommonCommunicationData.LookupRequestData []> ;
-     /**
-     * load data dari lookup dan generate lookup request.
-     * ini bisa di pergunakan dalam mode edit. jadinya load temporary item dan request ke server
-     */
-    loadFromCacheAndGenerateLookupRequest ( onComplete : (reqData : CommonCommunicationData.LookupRequestData []) => any ) : any  ; 
+    /**
+    * alias dari loadFromCacheAndGenerateLookupRequest
+    */
+    loadFromCacheAndGenerateLookupRequestUsingPromiseAlias(): Promise<CommonCommunicationData.LookupRequestData[]>;
+    /**
+    * load data dari lookup dan generate lookup request.
+    * ini bisa di pergunakan dalam mode edit. jadinya load temporary item dan request ke server
+    */
+    loadFromCacheAndGenerateLookupRequest(onComplete: (reqData: CommonCommunicationData.LookupRequestData[]) => any): any;
     /**
      * assign data lookup. misal ini di dapat dari generic edit --> /dynamics/rest-api/generic-edit/:pojo/:id, di inject langsung data ke dalam lookup
      */
-    assignLookupDataToControls( lookupsData : CommonCommunicationData.CommonLookupHeader[]  ); 
+    assignLookupDataToControls(lookupsData: CommonCommunicationData.CommonLookupHeader[]);
 }
+
+

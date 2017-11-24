@@ -162,21 +162,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
      */
     closeCommand: () => any;
 
-    /**
-     * default handler untuk submit
-     */
-    defaultSubmitHandler: (evt: any) => any = (evt: any) => {
-        evt.preventDefault();
-        if (this.state.editorState == 'add') {
-            this.saveAdd();
-        } if (this.state.editorState == 'edit') {
-            this.saveEdit();
-
-        } if (this.state.editorState == 'delete') {
-            this.saveDelete();
-        }
-        return false;
-    }
+    
 
 
 
@@ -628,7 +614,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
 
 
 
-    private requestDataForEdit(dataID: ID, editorState: string, additionalEditTasks: AdditionalEditorTask<DATA>[], onDataNotFoundHandler: (notFoundFlag: boolean) => any): Promise<any> {
+    requestDataForEdit(dataID: ID, editorState: string, additionalEditTasks: AdditionalEditorTask<DATA>[], onDataNotFoundHandler: (notFoundFlag: boolean) => any): Promise<any> {
         return new Promise<any>(async (accept: any, reject: any) => {
             if (this.state.editorState !== 'none') {
                 this.setStateHelper(st => { st.editorState = 'none'; });
