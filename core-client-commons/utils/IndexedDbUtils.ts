@@ -176,7 +176,7 @@ export class IndexedDbUtils {
     static readById ( param : ReadByIdParameter ) : Promise<any> {
         return new Promise<any>(async (accept: (n: any) => any, reject: (exc: any) => any) => {
             if (isNull(param.id) ) {
-                accept({});
+                accept(null);
                 return;
             }
             let req: IDBOpenDBRequest = indexedDB.open(param.databaseName, param.databaseVersion);
@@ -187,18 +187,75 @@ export class IndexedDbUtils {
             }
             req.onsuccess = (ev: Event) => {
                 db = req.result;
-                let ob : IDBRequest  =db.transaction(param.tableName , 'readonly').objectStore(param.tableName).get(param.id) ; 
-                ob.onerror=(  ev: Event) =>{
-                    reject (ev.target); 
-                    return ; 
-                } 
-                ob.onsuccess= (  ev2: any) =>{
-                    accept( ev2.target.result ) ; 
-                }
+                IndexedDbUtils.readByIdWorker(db.transaction(param.tableName , 'readonly').objectStore(param.tableName) , param.id)
+                    .then(accept)
+                    .catch( reject) ; 
+                
             }
         });
     }
 
+
+    /**
+     * worker untuk membaca data dengan id dari data. untuk di share dengan 
+     * @param store storage untuk membaca data
+     * @param id ID dari data untuk di baca
+     */
+    static readByIdWorker (store : IDBObjectStore , id : string|number ) : Promise<any> {
+        return new Promise<any>(async (accept: (n: any) => any, reject: (exc: any) => any) => {
+            let ob : IDBRequest  = store.get(id) ;
+            ob.onerror=(  ev: Event) =>{
+                reject (ev.target); 
+                return ; 
+            } 
+            ob.onsuccess= (  ev2: any) =>{
+                accept( ev2.target.result ) ; 
+            }
+        });
+    }
+
+    /**
+     * membaca dengan array of id
+     * @param store 
+     * @param ids 
+     */
+    static readByIdsWorker (store : IDBObjectStore , ids : string[]|number[] ) : Promise<any[]> {
+        return new Promise<any>(async (accept: (n: any) => any, reject: (exc: any) => any) => {
+            let rtvl : any[] =  [] ; 
+            for ( let id of ids) {
+                let r : any = await IndexedDbUtils.readByIdWorker( store , id); 
+                rtvl.push(r);
+            }
+            accept(rtvl); 
+        });
+    }
+
+
+    /**
+     * membaca dari indexed db dengan array of id dari dta
+     * @param param 
+     */
+    static readByIds (param : ReadByIdsParameter ) : Promise< Array<any>> { 
+        return new Promise<any>(async (accept: (n: any) => any, reject: (exc: any) => any) => {
+            if (isNull(param.ids) ) {
+                accept([]);
+                return;
+            }
+            let req: IDBOpenDBRequest = indexedDB.open(param.databaseName, param.databaseVersion);
+            let db: IDBDatabase = null;
+            req.onerror = (ev: Event) => {
+                reject(ev.target);
+                return;
+            }
+            req.onsuccess = (ev: Event) => {
+                db = req.result;
+                let store : IDBObjectStore  = db.transaction(param.tableName , 'readonly').objectStore(param.tableName)  ; 
+                IndexedDbUtils.readByIdsWorker(store , param.ids)
+                    .then( accept)
+                    .catch(reject);
+            }
+        });
+    }
 
 
     

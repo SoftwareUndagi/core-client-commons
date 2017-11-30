@@ -960,6 +960,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
             if (!this.validateEditData(this.state.currentEditedData, bnrContainer)) {
                 this.setStateHelper(st2 => {
                     st2.bannerMessages = bnrContainer;
+                    st2.editingModeEnabled = true  ; 
                 });
                 return;
             }
