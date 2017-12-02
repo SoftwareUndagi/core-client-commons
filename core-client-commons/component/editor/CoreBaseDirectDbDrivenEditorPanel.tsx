@@ -819,7 +819,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
      */
     taskAfterSaveAddSuccessGenerateBannerMessage(data: DATA): ReactEditorBannerMessage {
         return {
-            type: 'error',
+            type: 'info',
             title: "Simpan selesai",
             message: "Tambah data baru sukses di simpan, berikut ini adalah detail dari data"
         };
@@ -947,10 +947,6 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
         if (errorCallback == null || typeof errorCallback != 'undefined') {
             errorCallback = (code: string, message: string, exc: any) => { };
         }
-
-
-
-
         this.setStateHelper(st1 => {
             st1.bannerMessages = [];
             st1.editingModeEnabled = false;
