@@ -1,5 +1,5 @@
 import * as React from "react" ;
-import { isNull , cloneObject , readNested  } from '../utils/index';
+import { isNull , cloneObject , readNested , ObjectUtils  } from '../utils/index';
 
 export interface BaseComponentProps {} 
 export interface BaseComponentState {} 
@@ -45,6 +45,9 @@ export abstract class BaseComponent<PROPS extends BaseComponentProps , STATE ext
                 if ( f.indexOf('.')>=0){// kalau ada . berarti read nested fields
                     srcVal = readNested(srcStateOrProp , f) ; 
                     destVal =readNested(comparedStateOrProp , f) ; 
+                }
+                if ( Array.isArray(srcVal) || Array.isArray(destVal)) {
+                    return !ObjectUtils.compareFieldsArray( srcVal , destVal , []) ; 
                 }
                 if ( srcVal!=destVal) {
                     return true ; 
