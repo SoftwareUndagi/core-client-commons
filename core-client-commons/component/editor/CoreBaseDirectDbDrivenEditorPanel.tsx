@@ -103,7 +103,12 @@ export interface CoreBaseDirectDbDrivenEditorPanelProps<DATA, ID> {
     /**
      * parameter untuk perilaku editor dalam kasus save done. ini di pergunakan untuk pada saat save done
      */
-    editorBehaviorOnSaveDoneParameter?: EditorBehaviorOnSaveDoneParameter
+    editorBehaviorOnSaveDoneParameter?: EditorBehaviorOnSaveDoneParameter ; 
+
+    /**
+     * task yang akan di run efektif setelah data selesai di simpan(add / edit/delete)
+     */
+    taskAfterDataSaved ?  : ( data : DATA )=> any ; 
 
 
 }
@@ -439,6 +444,39 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
         }
     }
 
+    requestLookupReloadWithPromise() : Promise<any>{
+        if ( this.lookupManager.getLookupIds().length === 0 ) {
+            return new Promise<any>(( accept : (n )=> any )=>{
+                accept({}) ; 
+            }); 
+        }
+        return this.lookupManager.requestLookupDataWithPromise({
+            dataIdAsString: null,
+            modelName: this.getModelName(), 
+            onTokenAccepted: (token: string) => {
+                if ( !isNull(token) && token !== this.state.editorDataToken){
+                    this.setStateHelper( st=>{
+                        st.editorDataToken = token ; 
+                    }); 
+                }
+            },
+            onLookupAccepted: (indexedLookup: { [id: string]: CommonCommunicationData.CommonLookupValue[] }) => {
+                if ( !isNull(indexedLookup) ){
+                    let keys : string[] = Object.keys(indexedLookup) ; 
+                    if ( keys.length > 0 ) {
+                        this.setStateHelper( st=>{
+                            if (isNull( st.lookups) ){
+                                st.lookups = {} ; 
+                            }
+                        }); 
+                    }
+                }
+
+            }
+        }); 
+
+    }
+
 
     /**
      * worker untuk add new data. pergunakan hanya ini untuk add new data
@@ -607,6 +645,51 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
             onFailure);
 
     }
+
+
+
+    /**
+     * handler untuk menampilkan data dalam editor. worker untuk edit, view delete. ini bisa di pergunakan untuk 
+     * @param editorState 
+     * @param data 
+     * @param targetState 
+     */
+    handlerForEditOrViewData ( parameter : {
+        /**
+         * state dari editor
+         */
+        editorState : 'add' |'edit'|'delete'|'view' ; 
+        /**
+         * data untuk edi edit
+         */
+        data : DATA  ;  
+        /**
+         * state tempat menaruh data
+         */
+        targetState? : STATE  ;
+
+        /**
+         * default = false, ini untuk menandai apakah tidak perlu request lookup atau tidak
+         */
+        doNotRequestLookup ? : boolean ; 
+    }) {
+        let { targetState , doNotRequestLookup  , data , editorState } = parameter ; 
+        if ( isNull(targetState)) {
+            this.setStateHelper( st=>{
+                parameter.targetState = st ; 
+                this.handlerForEditOrViewData( parameter ) ; 
+            }) ; 
+            return ; 
+        }
+        if ( isNull(doNotRequestLookup)||!doNotRequestLookup){
+            this.requestLookupReload()
+        }
+        targetState.currentEditedData = data ;
+        targetState.editorState = editorState; 
+        
+
+    }
+
 
 
 
@@ -975,6 +1058,9 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                             () => {
 
                             });
+                        if ( !isNull(this.props.taskAfterDataSaved)){
+                            this.props.taskAfterDataSaved(dbData);
+                        }
                     });
 
                 }).catch((exc: any) => {
@@ -1093,6 +1179,9 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                 saveCallback(dbData);
                 this.taskAfterSaveEditSuccess(dbData);
                 accept(dbData);
+                if ( !isNull(this.props.taskAfterDataSaved)){
+                    this.props.taskAfterDataSaved(dbData);
+                }
             } catch (exc) {
                 let code: string = exc.errorCode;
                 let message: string = exc.message;
