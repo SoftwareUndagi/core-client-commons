@@ -285,10 +285,8 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
         if (isNull(doNotCall)) {
             doNotCall = false;
         }
-
         if (!doNotCall) {
             if (this.props.editorState == 'add') {
-                //this.state.currentEditedData
                 this.addNewData(this.props.dataForAddNew);
             }
             else if (this.props.editorState == 'edit') {
@@ -303,11 +301,6 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
         }
 
     }
-
-
-
-
-
 
     /**
      * membaca data id as string. ini untuk edit
@@ -395,7 +388,6 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
         return {
             data: this.state.currentEditedData,
             token: this.state.editorDataToken
-
         };
     }
 
@@ -406,7 +398,6 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
     generateSaveDeleteParam(): any {
         return {
             token: this.state.editorDataToken
-
         };
     }
 
@@ -482,7 +473,6 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
      * worker untuk add new data. pergunakan hanya ini untuk add new data
      */
     addNewData(newData: DATA, callback?: () => any) {
-
         this.addNewDataWorker(newData)
             .then(d => {
                 if (!isNull(callback)) {
@@ -490,9 +480,6 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                 }
             })
             .catch(exc => { })
-
-
-
     }
 
 
@@ -514,8 +501,6 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
             this.setStateHelper(st => {
                 st.editorState = 'none';
             });
-
-
             let ids: string[] = this.lookupManager.getLookupIds();
             if (!this.lovRequested && !isNull(ids) && ids.length > 0) {
                 console.log('[CoreBaseDirectDbDrivenEditorPanel] request data dengan lookup : ', ids.join(','));
@@ -545,7 +530,6 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                 }, () => {
                     completionTaskAndDoAccept();
                 });
-
             }
             else {
                 let token: string = await this.requestEditDataTokenWithPromise(null);
@@ -558,7 +542,6 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                     completionTaskAndDoAccept();
                 });
             }
-
         });
     }
 
@@ -636,14 +619,10 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
         if (!isNull(objectId) && objectId.length > 0) {
             url += "?objectId=" + objectId;
         }
-
         self.ajaxUtils.sendAjaxGet(url, a => {
             let tkn: any = a;
             onSuccess(tkn);
-
-        },
-            onFailure);
-
+        } , onFailure);
     }
 
 
@@ -686,13 +665,55 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
         }
         targetState.currentEditedData = data ;
         targetState.editorState = editorState; 
-        
-
     }
 
 
 
 
+
+
+    /**
+     * view data detail
+     * @param data data untuk di view
+     * @param doNotRequestLookup default = false . ini untuk menandai untuk tidak 
+     */
+    viewDataWithSpecifiedData ( parameter : {
+        /**
+         * data untuk di view
+         */
+        data : DATA ;  
+        /**
+         * flag untuk tidak me-load lookup
+         */
+        doNotRequestLookup ? : boolean ,
+        /**
+        * task tambahan dalam viewDataWithSpecifiedData. di trigger pada saat update state
+        */
+        viewDataWithSpecifiedDataAdditionalTask : (data : DATA , targetState : STATE )  => any 
+    }    ) : Promise<any> {
+        return new Promise<any>( async ( accept : (n : any )=> any, reject : (n : any )=> any ) => {
+            let { data , doNotRequestLookup } = parameter ; 
+            doNotRequestLookup = doNotRequestLookup||false ;  
+            if ( !doNotRequestLookup && !this.lovRequested) {
+                await  this.requestLookupReloadWithPromise() ;
+            }
+            this.setStateHelper( st =>{
+                st.editorState ='view' ; 
+                st.currentEditedData = data ; 
+                st.bannerMessages = [] ; 
+                if ( !isNull ( parameter.viewDataWithSpecifiedDataAdditionalTask )) {
+                    parameter.viewDataWithSpecifiedDataAdditionalTask(data ,st) ; 
+                } 
+            }, ()=>{
+                this.applyDataToControls(data);
+                accept({});
+            }); 
+        }); 
+
+    }
+
+
+    
 
 
 
@@ -816,8 +837,6 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
         return true;
     }
 
-
-
     /**
      * menaruh ke data banner message untuk di render ke dalam error info
      * @param messages messages untuk di taruh
@@ -832,7 +851,6 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
      * worker untuk delete data
      */
     saveDelete(saveCallback?: (data: DATA) => any, errorCallback?: (code: string, message: string, exc: any) => any): any {
-
         this.setStateHelper(st => {
             st.bannerMessages = [];
             st.editingModeEnabled = false;
@@ -862,7 +880,6 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                                 this.taskAfterEraseDone(this.state.currentEditedData);
                             });
                         });
-
                 }
                 if (this.deleteAjaxMethodName == 'sendAjaxDelete') {
                     this.ajaxUtils.sendAjaxDelete(this.generateDeleteUrl(idDataToEdit),
@@ -883,18 +900,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                 }
             });
 
-
-
-
     }
-
-
-
-
-
-
-
-
 
 
     /**
@@ -946,8 +952,6 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                 this.applyDataToControls(this.state.currentEditedData);
             });
         }
-
-
     }
 
 
@@ -1066,18 +1070,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                 }).catch((exc: any) => {
                     this.onSaveDataFailure(exc);
                 });
-        })
-
-
-
-
-
-
-
-
-
-
-
+        });
 
     }
 
@@ -1251,12 +1244,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
             })
             .catch(exc => {
                 console.error('[CoreBaseDirectDbDrivenEditorPanel] Gagal memproses simpan data, error : ', exc);
-            })
-
-
-
-
-
+            });
     }
 
 
