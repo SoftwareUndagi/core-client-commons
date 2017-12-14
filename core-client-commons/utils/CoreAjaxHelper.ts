@@ -206,13 +206,14 @@ export class CoreAjaxHelper {
         }
         return new Promise<any>((accept: (d: any) => any, reject: (exc: any) => any) => {
             let h: Headers = new Headers();
+             /* gede sutarsa (14 dec 2017)redundan, ini jadinya pada bagian header ada data yang sama dengab body, jadinya di server request gagal
             if (param != null && typeof param != 'undefined') {
                 let keys: string[] = Object.keys(param);
                 for (let k of keys) {
                     h.append(k, param[k]);
                 }
             }
-
+            */
             h.append('Accept', 'application/json');
             h.append('Content-Type', 'application/json');
 
