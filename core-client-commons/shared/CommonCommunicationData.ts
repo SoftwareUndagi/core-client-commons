@@ -427,7 +427,7 @@ export namespace CommonCommunicationData {
         /**
         * association apa saja yang di sertakan ( join)
         */
-        includedAssociations: CommonCommunicationData.IncludeModelParam[]; 
+        includeModels : CommonCommunicationData.IncludeModelParam[]; 
 
 
 
