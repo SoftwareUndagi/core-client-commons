@@ -48,7 +48,21 @@ export abstract class BaseListOfValueManager implements ListOfValueManager{
         this.indexedLovComponents = {};
     }
 
-
+     /**
+     * load dari cache (1 saja)
+     */
+    loadFromCacheSingle(id : string )  : Promise<CommonCommunicationData.CommonLookupValue[]> {
+        return new Promise<  CommonCommunicationData.CommonLookupValue[]  >(async (accept: any, reject: any) => {
+            this.loadFromCache([id]).then( d =>{
+                if ( !isNull(d)) {
+                    accept(d[id]) ; 
+                    return ; 
+                }
+                accept(null) ; 
+            })
+                .catch( reject) ; 
+        });
+    }
 
     /**
      * membaca lookup dengan lov id + detail code

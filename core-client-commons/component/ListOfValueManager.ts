@@ -36,17 +36,10 @@ export interface LOVEnabledComponent {
      * id dari lookup. ini untuk di request kembali ke server
      */
     lovId: string;
-
-    /**
-    * underlying element. elemetn yang menjadi based dari LOV
-    */
-    getElement(): HTMLElement;
     /**
      * assign lookup header data
      */
     assignLookupData(lookupData: CommonCommunicationData.CommonLookupValue[]);
-
-
 
 }
 
@@ -100,6 +93,13 @@ export interface ListOfValueManager {
      * @param ids id dari lookup
      */
     loadFromCache(ids: string[]): Promise<{ [id: string]: CommonCommunicationData.CommonLookupValue[] }>;
+
+
+
+    /**
+     * load dari cache (1 saja)
+     */
+    loadFromCacheSingle(id : string ) : Promise<CommonCommunicationData.CommonLookupValue[]> ; 
 
     /**
      * load data dari lookup dan generate lookup request.
