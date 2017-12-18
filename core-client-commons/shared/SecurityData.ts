@@ -105,7 +105,13 @@ export namespace SecurityData {
 		/**
 		 * nomor bisnis dari pegawai, nomor yang tercantum dalam name tag etc
 		 */
-		employeeNumber : string ;
+        employeeNumber : string ;
+        
+
+        /**
+         * IP dari user di deteksi oleh server bedsarkan login
+         */
+        ipAddress ? : string ; 
 		
 		/**
 		 * kode cabang/unit kerja dst
