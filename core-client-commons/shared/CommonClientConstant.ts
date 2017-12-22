@@ -1,8 +1,37 @@
 
+
+/**
+ * info soal project identification. ini untuk prefix dalam data di local storage
+ */
+export interface ProjectIdentificationInfo {
+
+    /**
+     * kode project
+     */
+    code : string ;
+    
+    /**
+     * nama dari project
+     */
+    name : string ; 
+
+}
+
+
+
 /**
  * holder commons constant
  */
 export class CommonClientConstant {
+
+
+    /**
+     * identifikasi dari project
+     */
+    static PROJECT_IDENTIFICATION :  ProjectIdentificationInfo = {
+        code : '' , 
+        name :'Unnamed'
+    }
     
     /**
      * reference ke grid. di taruh dalam DOM. ini untuk di akses dari element lain nya. 
