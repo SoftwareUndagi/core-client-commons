@@ -60,11 +60,14 @@ export function insertAtArray(theArray: any[], newData: any, index: number): any
  */
 export function __deepCloneWorkerRecursive ( currentData : any , destination : any , convertDateToIso ?  : boolean  ) : any {
     let d : Date ; 
-    
     let keys : string[] =  Object.keys(currentData)  ; 
     for ( let k of keys ) {
         let val : any = currentData[k] ; 
-        if ( isNull(val)) {
+        let chkNull : boolean = isNull(currentData[k] )  ; 
+        if ( chkNull ) {
+            if ( k.startsWith('$')){
+                destination[k] = null ; 
+            }
             continue ; 
         }
         else if ( Array.isArray(val)) {
@@ -90,7 +93,6 @@ export function __deepCloneWorkerRecursive ( currentData : any , destination : a
                     __deepCloneWorkerRecursive(r , rBaru);
                     dstArr.push(rBaru);
                 }
-
             }
         }
         else if ( ['number' , 'string'].indexOf(typeof val)>=0){
@@ -102,13 +104,11 @@ export function __deepCloneWorkerRecursive ( currentData : any , destination : a
             }else{
                 destination[k] = makeIsoDate(val) ; 
             }
-            
         }
         else {
             destination[k]  = {} ; 
             __deepCloneWorkerRecursive( val , destination[k]);
         }
-
     }
 } 
 
