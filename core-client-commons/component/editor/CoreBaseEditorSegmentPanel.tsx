@@ -4,7 +4,7 @@ import { CommonCommunicationData    } from '../../shared/index';
 import { ListOfValueManager } from '../ListOfValueManager' ; 
 import { EditorInputElement } from './CommonsInputElement';
 import { BaseComponent } from '../BaseComponent';
-
+import { editorsupport } from './editorsupport'; 
 
 
 export interface CoreBaseEditorSegmentPanelProps <DATA> {
@@ -57,6 +57,17 @@ export interface CoreBaseEditorSegmentPanelProps <DATA> {
      */
     loadDataMounted ? : boolean ; 
 
+
+    /**
+     * register sub editor ke parent
+     */
+    registerToParentEditor : (  subEditor : editorsupport.EditorSubPanelHandler<DATA> ) => any ; 
+
+
+    /**
+     * unregister dari parent
+     */
+    unRegisterFromParentEditor : (  subEditor : editorsupport.EditorSubPanelHandler<DATA> ) => any ; 
 }
 
 
@@ -68,7 +79,7 @@ export interface CoreBaseEditorSegmentPanelState <DATA> {}
 /**
  * segment helper dari editor. agar bisa break down editor dalam component-component
  */
-export abstract class CoreBaseEditorSegmentPanel<DATA , PROPS extends CoreBaseEditorSegmentPanelProps<DATA> ,STATE extends CoreBaseEditorSegmentPanelState<DATA>>  extends BaseComponent <PROPS , STATE>{
+export abstract class CoreBaseEditorSegmentPanel<DATA , PROPS extends CoreBaseEditorSegmentPanelProps<DATA> ,STATE extends CoreBaseEditorSegmentPanelState<DATA>>  extends BaseComponent <PROPS , STATE> implements editorsupport.EditorSubPanelHandler<DATA>{
 
 
 
@@ -106,9 +117,22 @@ export abstract class CoreBaseEditorSegmentPanel<DATA , PROPS extends CoreBaseEd
     }
 
 
+
+
+
     componentDidMount () {
         if ( !isNull(this.props.loadDataMounted) && this.props.loadDataMounted) {
             this.reAssignDataToControl(); 
+        }
+        if ( !isNull(this.props.registerToParentEditor)){
+            this.props.registerToParentEditor(this) ; 
+        }
+    }
+
+
+    componentWillUnmount() {
+        if ( !isNull(this.props.unRegisterFromParentEditor)){
+            this.props.unRegisterFromParentEditor(this) ; 
         }
     }
 
@@ -146,7 +170,26 @@ export abstract class CoreBaseEditorSegmentPanel<DATA , PROPS extends CoreBaseEd
      */
     abstract getColMaxLength (fieldName : string , modelName? : string ) : number  ; 
     
+    /**
+     * task tambahan dalam proses delete data
+     */
+    additionalTaskOnDelete(data: DATA) { }
+    /**
+     * task tambahan pada saat init edit data
+     */
+    additionalTaskOnEdit(data: DATA) { }
+    /**
+     * task tambahan dalam proses add new data
+     */
+    additionalTaskOnAdd(data: DATA) {
 
+    }
+    /**
+     * task tambahan dalam proses view
+     */
+    additionalTaskOnView(data: DATA) {
+
+    }
 
 
     

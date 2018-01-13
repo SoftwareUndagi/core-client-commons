@@ -28,6 +28,20 @@ export abstract class BaseComponent<PROPS extends BaseComponentProps , STATE ext
         } , afterSetStateTask); 
     }
 
+
+
+
+    /**
+     * versi async dari update state. agar code bisa sync
+     * @param updater method untuk update state data
+     */
+    setStateHelperAsync (updater : (clonedState : STATE )=>any) : Promise<any> {
+        return new Promise<any> ( ( accept : (n )=> any , reject : (exc)=> any )=>{
+            this.setStateHelper( updater , ()=>{
+                accept({}); 
+            })
+        }); 
+    }
     
 
 

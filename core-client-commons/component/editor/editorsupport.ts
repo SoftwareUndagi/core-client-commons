@@ -11,6 +11,30 @@ import { CommonCommunicationData } from '../../shared/index';
 export namespace editorsupport{
 
 
+
+	/**
+	 * interface untuk editor sub panel
+	 */
+	export interface EditorSubPanelHandler<DATA> {
+		/**
+		 * task tambahan dalam proses delete data
+		 */
+		additionalTaskOnDelete(data: DATA)  ; 
+		/**
+		 * task tambahan pada saat init edit data
+		 */
+		additionalTaskOnEdit(data: DATA) ;
+		/**
+		 * task tambahan dalam proses add new data
+		 */
+		additionalTaskOnAdd(data: DATA) ;
+		/**
+		 * task tambahan dalam proses view
+		 */
+		additionalTaskOnView(data: DATA) ;
+	}
+
+
 	/**
 	 * untuk detach event
 	 */

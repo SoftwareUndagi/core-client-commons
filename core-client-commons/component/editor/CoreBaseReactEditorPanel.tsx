@@ -7,6 +7,7 @@ import { isNull, readNested, setValueHelper, cloneObject  ,  CoreAjaxHelper , Ob
 import { EditorInputElement , CustomValidationFailureResult } from './CommonsInputElement';
 
 import { CoreBaseSubEditorPanel } from './CoreBaseSubEditorPanel';
+import { editorsupport } from "./editorsupport";
 
 
 
@@ -118,9 +119,7 @@ export abstract class CoreBaseReactEditorPanel<DATA  , PROP , STATE extends Core
     /**
      * default worker untuk assign loookup. ini akan otomatis menaruh data ke dalam state
      */
-    assignLookupData :  (lookupId : string ,lookupData: CommonCommunicationData.CommonLookupValue[] ) => any = (lookupId : string ,lookupData: CommonCommunicationData.CommonLookupValue[] ) =>{
-           
-        }; 
+    assignLookupData :  (lookupId : string ,lookupData: CommonCommunicationData.CommonLookupValue[] ) => any = (lookupId : string ,lookupData: CommonCommunicationData.CommonLookupValue[] ) =>{}; 
 
     /**
      * worker untuk membaca data edited data. 
@@ -134,6 +133,36 @@ export abstract class CoreBaseReactEditorPanel<DATA  , PROP , STATE extends Core
      * key untuk element input
      */
     keyToSelf: string ; 
+
+
+    /**
+     * handler sub editor. ini untuk editor segments
+     */
+    protected subEditorHandlers : Array< editorsupport.EditorSubPanelHandler<DATA>>=[] ; 
+
+
+
+    /**
+     * handler untuk register sub editor handler
+     */
+    protected registerSubEditorHandler : ( handler : editorsupport.EditorSubPanelHandler<DATA> )=> any  =( handler : editorsupport.EditorSubPanelHandler<DATA> )=> {
+        if ( this.subEditorHandlers.indexOf(handler)<0 ) {
+            this.subEditorHandlers.push(handler) ; 
+        }
+    } ; 
+
+
+    /**
+     * handler untuk unregister sub editor dari parent
+     */
+    protected unRegisterSubEditorHandler : ( handler : editorsupport.EditorSubPanelHandler<DATA> )=> any  =( handler : editorsupport.EditorSubPanelHandler<DATA> )=> {
+        if ( this.subEditorHandlers.indexOf(handler)>=0) {
+            this.subEditorHandlers.splice(this.subEditorHandlers.indexOf(handler), 1 ) ; 
+        }
+    }
+
+
+
 
     /**
      * worker untuk unreg input panel
@@ -182,23 +211,23 @@ export abstract class CoreBaseReactEditorPanel<DATA  , PROP , STATE extends Core
      * worker untuk register sub editor
      */
     registerSubEditor : ( editor : CoreBaseSubEditorPanel<DATA , any , any > , unRegFlag : boolean ) => any  =( editor : CoreBaseSubEditorPanel<DATA , any , any > , unRegFlag : boolean ) =>{
-             if ( unRegFlag) {
-                let idx : number = this.state.subEditors.indexOf(editor); 
-                if ( idx>-1){
-                    this.setStateHelper( st =>{
-                        st.subEditors.splice(idx , 1 ) ; 
-                    });
-                }
-            }
-            else{
-                editor.assignLookupData = (lookupId : string ,lookupData: CommonCommunicationData.CommonLookupValue[] ) =>{
-                    this.assignLookupData(lookupId , lookupData );
-                } 
+            if ( unRegFlag) {
+            let idx : number = this.state.subEditors.indexOf(editor); 
+            if ( idx>-1){
                 this.setStateHelper( st =>{
-                    st.subEditors.push(editor); 
-                }); 
+                    st.subEditors.splice(idx , 1 ) ; 
+                });
             }
-        }; 
+        }
+        else{
+            editor.assignLookupData = (lookupId : string ,lookupData: CommonCommunicationData.CommonLookupValue[] ) =>{
+                this.assignLookupData(lookupId , lookupData );
+            } 
+            this.setStateHelper( st =>{
+                st.subEditors.push(editor); 
+            }); 
+        }
+    }; 
     
 
 

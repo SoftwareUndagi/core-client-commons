@@ -5,7 +5,6 @@ import { CoreBaseReactEditorPanel, CoreBaseReactEditorPanelState } from "./CoreB
 import { CommonCommunicationData, LookupWithTokenResponse } from "../../shared/index";
 import { AdditionalEditorTask } from './EditorComponentData';
 import { isNull, readNested, setValueHelper, cloneObject, ObjectUtils } from '../../utils/index';
-import { } from '../ListOfValueComponent';
 import { CustomValidationFailureResult } from "./CommonsInputElement";
 
 
@@ -111,6 +110,9 @@ export interface CoreBaseDirectDbDrivenEditorPanelProps<DATA, ID> {
     taskAfterDataSaved ?  : ( data : DATA )=> any ; 
 
 
+    
+
+
 }
 
 
@@ -193,6 +195,27 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
         swapState.editingModeEnabled = true;
         swapState.bannerMessages = [];
         swapState.editingModeEnabled = true;
+        // register child
+        this.additionalOnAddTaskHandlers.push((d : DATA)=>{
+            this.subEditorHandlers.forEach( suEditor =>{
+                suEditor.additionalTaskOnAdd(d); 
+            }); 
+        }); 
+        this.additionalOnEraseTaskHandlers.push((d : DATA)=>{
+            this.subEditorHandlers.forEach( suEditor =>{
+                suEditor.additionalTaskOnDelete(d); 
+            }); 
+        });
+        this.additionalOnEditTaskHandlers.push((d : DATA)=>{
+            this.subEditorHandlers.forEach( suEditor =>{
+                suEditor.additionalTaskOnEdit(d); 
+            }); 
+        }); 
+        this.additionalOnViewTaskHandlers.push((d : DATA)=>{
+            this.subEditorHandlers.forEach( suEditor =>{
+                suEditor.additionalTaskOnView(d); 
+            }); 
+        });
 
     }
 
@@ -280,6 +303,9 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
         this.additionalTaskOnMount();
     }
 
+
+
+    
     componentDidMount() {
         let doNotCall: boolean = this.props.doNotCallEditorOnInit;
         if (isNull(doNotCall)) {
