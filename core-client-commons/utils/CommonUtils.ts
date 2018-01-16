@@ -120,7 +120,7 @@ export function makeZeroLeadedString (n : number )  : string{
     if ( isNull(n)) {
         return null ; 
     }
-    if ( n>9) {
+    if ( n<=9) {
         return '0' + n ; 
     }
     return n +'' ; 
