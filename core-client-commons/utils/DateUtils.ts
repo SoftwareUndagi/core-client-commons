@@ -334,9 +334,20 @@ export class DateUtils {
             console.error("[DateUtils] gagal format ", date, ", pattern : ", pattern, ",error : ", exc.message);
             return null;
         }
-
     }
 
+
+
+    /**
+     * nambah hari ke dalam tanggal
+     * @param dateToAdd tanggal utuk di add
+     * @param day jumlah hari untuk untuk di tambahkan 
+     */
+    static addDate ( dateToAdd : Date , day : number ) : Date {
+        let salinan : Date = new Date(dateToAdd) ; 
+        salinan.setDate( salinan.getDate() + day) ; 
+        return salinan ; 
+    }
 
 
     /**
