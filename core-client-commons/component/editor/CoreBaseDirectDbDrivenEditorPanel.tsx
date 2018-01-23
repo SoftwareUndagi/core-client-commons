@@ -986,7 +986,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
      */
     taskAfterSaveEditSuccessGenerateBannerMessage(data: DATA): ReactEditorBannerMessage {
         return {
-            type: 'error',
+            type: 'info',
             title: "Simpan selesai",
             message: "Data sukses di simpan, berikut ini adalah detail dari data"
         };
