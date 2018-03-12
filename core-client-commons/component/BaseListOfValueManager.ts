@@ -68,7 +68,7 @@ export abstract class BaseListOfValueManager implements ListOfValueManager{
      * membaca lookup dengan lov id + detail code
      */
     getLookup(lookupId: string, valueCode: string): CommonCommunicationData.CommonLookupValue {
-        let looks: CommonCommunicationData.CommonLookupValue[] = this.lookupData[lookupId] || null;
+        let looks: CommonCommunicationData.CommonLookupValue[]|null = this.lookupData[lookupId] || null;
         if (looks == null) {
             return null;
         }
@@ -143,7 +143,7 @@ export abstract class BaseListOfValueManager implements ListOfValueManager{
             if (dataId != null && typeof dataId !== 'undefined' && dataId.length > 0) {
                 url += "?dataId=" + dataId;
             }
-            //ajaxhelper.AjaxUtils.
+            
             let rslAjax: any = null;
             if ((x.lookupRequests != null && typeof x.lookupRequests !== 'undefined' && x.lookupRequests.length > 0) || (modelName != null && typeof modelName !== 'undefined' && modelName.length > 0)) {
 

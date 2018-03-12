@@ -1,14 +1,17 @@
 {
     "compilerOptions": {
-        "target": "es2017" , 
-        "module": "system" , 
-        "outFile": "./dist/index.js", 
-        "declaration": true , 
+        // "target": "es2017" , 
+        // "module": "system" , 
+        "target": "es6",
+        "module": "esnext",
+        //"outFile": "./dist/index.js", 
+        "declaration": false, 
         "sourceMap": true , 
-        "jsx": "react"
+        "jsx": "react",
+        
     } , 
     "files": [
-        "./index.ts" , 
+        "./CoreClientCommons.ts" , 
         "./node_modules/@types/react/index.d.ts"
     ]
 }

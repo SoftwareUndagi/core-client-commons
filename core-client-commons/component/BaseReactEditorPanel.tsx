@@ -3,11 +3,11 @@ import * as React from "react" ;
 import { ListOfValueManager } from './ListOfValueManager';
 import { CommonCommunicationData  } from '../shared/index';
 import { BaseComponent , BaseComponentProps , BaseComponentState } from './BaseComponent';
-import {  EditorInputElement , CustomValidationFailureResult } from './ReactEditorComponent';
-import { isNull, readNested, setValueHelper, cloneObject  , ajaxhelper,FormatterUtils , ObjectUtils } from '../utils/index';
+import {  EditorInputElement , CustomValidationFailureResult } from './editor/CommonsInputElement';
+import { isNull, readNested, setValueHelper, cloneObject, CoreAjaxHelper  ,   ObjectUtils } from '../utils/index';
 
 
-import { BaseSubEditorPanel } from './BaseSubEditorPanel';
+import { CoreBaseSubEditorPanel } from './editor/CoreBaseSubEditorPanel';
 
 
 
@@ -38,7 +38,7 @@ export interface BaseEditorState<DATA> extends BaseComponentState{
     /**
      * sub editors
      */
-    subEditors ?: BaseSubEditorPanel<DATA , any , any >[]  ; 
+    subEditors ?: CoreBaseSubEditorPanel<DATA , any , any >[]  ; 
     
 }
 
@@ -113,7 +113,7 @@ export abstract class BaseReactEditorPanel<DATA  , PROP , STATE extends BaseEdit
     /**
      * untuk akses ke ajax
      */
-    ajaxUtils : ajaxhelper.AjaxUtils ; 
+    ajaxUtils : CoreAjaxHelper ; 
 
 
     /**
@@ -190,7 +190,7 @@ export abstract class BaseReactEditorPanel<DATA  , PROP , STATE extends BaseEdit
     /**
      * worker untuk register sub editor
      */
-    registerSubEditor : ( editor : BaseSubEditorPanel<DATA , any , any > , unRegFlag : boolean ) => any  =( editor : BaseSubEditorPanel<DATA , any , any > , unRegFlag : boolean ) =>{
+    registerSubEditor : ( editor : CoreBaseSubEditorPanel<DATA , any , any > , unRegFlag : boolean ) => any  =( editor : CoreBaseSubEditorPanel<DATA , any , any > , unRegFlag : boolean ) =>{
              if ( unRegFlag) {
                 let idx : number = this.state.subEditors.indexOf(editor); 
                 if ( idx>-1){
@@ -218,7 +218,7 @@ export abstract class BaseReactEditorPanel<DATA  , PROP , STATE extends BaseEdit
         super(props) ; 
         let self : any = this ; 
         this.keyToSelf = 'objectRef' ; 
-        this.ajaxUtils = ajaxhelper.generateOrGetAjaxUtils() ; 
+        this.ajaxUtils = new CoreAjaxHelper() ; 
         this.lookupManager = this.generateLookupManager();
         let swap : STATE =this.generateDefaultState();
         if ( !isNull(swap)){
@@ -260,7 +260,7 @@ export abstract class BaseReactEditorPanel<DATA  , PROP , STATE extends BaseEdit
     /**
      * akses ke sub editor
      */
-    get subEditors () : BaseSubEditorPanel<DATA , any , any >[] {
+    get subEditors () : CoreBaseSubEditorPanel<DATA , any , any >[] {
         return this.state.subEditors ; 
     }
 

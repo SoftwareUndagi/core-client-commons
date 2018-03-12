@@ -1,5 +1,20 @@
 
 
+/**
+ * interface close editor. karena close editor pekerjaan nya bukan cuma menutup diri sendiri.
+ * show panel sebelumn nya dll
+ */
+export interface CloseEditorCommand {
+    () : any ;
+}
+
+
+/**
+ * close command versi async
+ */
+export interface CloseEditorCommandAsync {
+    () : Promise<any> ;
+}
 
     /**
      * hak editor,

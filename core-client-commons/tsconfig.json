@@ -1,9 +1,12 @@
 {
     "compilerOptions": {
-        "target": "es2017" , 
-        "module": "system" ,
+        // "target": "es2017" , 
+        // "module": "system" ,
+        "target": "es6",
+        "module": "esnext",
+        "declaration": true,
         "jsx": "react", 
-        "outDir": ".."
+        "outDir": "../"
     }, 
     "files": [
         "./index.ts" ,
