@@ -1,13 +1,14 @@
 {
     "compilerOptions": {
-        // "target": "es2017" , 
-        // "module": "system" , 
-        "target": "es6",
-        "module": "esnext",
-        //"outFile": "./dist/index.js", 
-        "declaration": false, 
+        "target": "es2017" , 
+        "module": "system" , 
+        //webpack version "target": "es6",
+        // "module": "esnext",
+        "outFile": "./dist/index.js", 
+        "declaration": true, 
         "sourceMap": true , 
         "jsx": "react",
+        "removeComments": true
         
     } , 
     "files": [
