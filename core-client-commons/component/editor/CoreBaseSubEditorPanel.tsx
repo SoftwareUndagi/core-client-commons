@@ -1,187 +1,171 @@
 
-import * as React from "react" ;
 import { ListOfValueManager } from '../ListOfValueManager';
 import { CommonCommunicationData  } from '../../shared/index';
 import { EditorInputElement, CustomValidationFailureResult } from './CommonsInputElement';
 import { ReactEditorBannerMessage  } from './EditorComponent'; 
-import { isNull, readNested, setValueHelper } from '../../utils/CommonUtils';
+import { isNull } from '../../utils/CommonUtils';
 import { BaseComponent , BaseComponentProps , BaseComponentState } from '../BaseComponent';
-
 
 export interface CoreBaseSubEditorPanelState<DATA> extends BaseComponentState {
 
     /**
      * data untuk di edit. misal kalau di perlukan akses langsung 
      */
-    editedData : DATA ; 
+    editedData: DATA ; 
 
     /**
      * array of input element. apa saja yang di miliki oleh editor
      */
-    inputElements ?:EditorInputElement[]  ;    
+    inputElements ?: EditorInputElement[]  ;    
 }
-export interface CoreBaseSubEditorPanelProps extends BaseComponentProps{
-
+export interface CoreBaseSubEditorPanelProps extends BaseComponentProps {
     /**
      * lookup manager
      */
-    lookupManager : ListOfValueManager ;
-   
-
+    lookupManager: ListOfValueManager ;
     /**
      * container lookup data. ini di ambil dari state induk dari editor
      */
-    lookupContainers : {[id: string ] : CommonCommunicationData.CommonLookupValue[] } ; 
+    lookupContainers: {[id: string ]: CommonCommunicationData.CommonLookupValue[] } ; 
     /**
      * worker untuk register ke parent editor
      */
-    registerToParentEditorMethod : (  editor : CoreBaseSubEditorPanel<any , any , any > , unRegister ? : boolean ) => any
-
-
+    registerToParentEditorMethod: (  editor: CoreBaseSubEditorPanel<any , any , any > , unRegister ?: boolean ) => any ;
     /**
      * nama variable. untuk di register di parent
      */
-    variableName? : string ;  
+    variableName ?: string ;  
     /**
      * register variable ke parent
      */
-    registerVariableMethod? : (variableName : string , input : any ) => any ;
+    registerVariableMethod ?: (variableName: string , input: any ) => any ;
 
     /**
      * state dari editor
      */
-    editorState : string ; 
-
-
+    editorState: string ; 
     /** 
-    * fetch  data for edit
-    */
-    getVariableToEditFromParentData ?:(data :any)=>any;
+     * fetch  data for edit
+     */
+    getVariableToEditFromParentData ?: (data: any) => any;
 }
-
 
 /**
  * base sub editor
  */
-export abstract class CoreBaseSubEditorPanel<DATA , PROPS extends CoreBaseSubEditorPanelProps, STATE extends CoreBaseSubEditorPanelState<DATA> > extends BaseComponent<PROPS , STATE>{
-     /**
+export abstract class CoreBaseSubEditorPanel<DATA , PROPS extends CoreBaseSubEditorPanelProps, STATE extends CoreBaseSubEditorPanelState<DATA> > extends BaseComponent<PROPS , STATE> {
+    /**
      * worker untuk unreg input panel
      */
-    registrarInputElement : (inputElement : EditorInputElement , unRegFlag : boolean ) => any ;
+    registrarInputElement: (inputElement: EditorInputElement , unRegFlag: boolean ) => any ;
     
     /**
      * register variable ke parent
      */
-    registerVariableMethod : (variableName : string , input : any ) => any ;
+    registerVariableMethod: (variableName: string , input: any ) => any ;
 
     /**
      * default worker untuk assign loookup. ini akan otomatis menaruh data ke dalam state
      */
-    assignLookupData :  (lookupId : string ,lookupData: CommonCommunicationData.CommonLookupValue[] ) => any ; 
+    assignLookupData:  (lookupId: string , lookupData: CommonCommunicationData.CommonLookupValue[] ) => any ; 
 
-
-
-    constructor(props : PROPS) {
+    constructor(props: PROPS) {
         super(props) ; 
-        let swapState : any = this.generateDefaultState() ;  
+        let swapState: any = this.generateDefaultState() ;  
         this.state = swapState ;
-        swapState.inputElements=[];
-        let empty : any ={} ; 
+        swapState.inputElements = [];
+        let empty: any = {} ; 
         swapState.editedData = empty ;
-        this.registrarInputElement = ( inputElement : EditorInputElement , unRegFlag : boolean ) => {
-            unRegFlag= unRegFlag||false ;
+        this.registrarInputElement = ( inputElement: EditorInputElement , unRegFlag: boolean ) => {
+            unRegFlag = unRegFlag || false ;
             if ( unRegFlag) {
-                let idx : number =swapState.inputElements.indexOf(inputElement); 
-                if ( idx>-1){
+                let idx: number = swapState.inputElements.indexOf(inputElement); 
+                if ( idx > -1) {
                     swapState.inputElements.splice(idx , 1 ) ; 
                 }
-            }
-            else{
+            } else {
                 swapState.inputElements.push(inputElement); 
             }
-        }
-        this.registerVariableMethod = (variableName : string , input : any )=>{
+        };
+        this.registerVariableMethod = (variableName: string , input: any ) => {
             this[variableName] = input; 
+        };
+        props.registerToParentEditorMethod(this , false ) ;
+        if ( !isNull(props.variableName ) && !isNull(props.registerVariableMethod)) {
+            this.props.registerVariableMethod!(props.variableName! , this ) ; 
         }
     }
-
-
-
-    
     
     /**
      * validasi mandatory field custom
      */
-    validateMandatoryField () : CustomValidationFailureResult[]   {
-        let rtvl : CustomValidationFailureResult[] = [] ; 
-        for ( let inp of this.state.inputElements) {
-            let mndtoryHaveError : boolean = false ; 
-            if ( !isNull( inp['runMandatoryValidation']) ){
-                let swapHasil : CustomValidationFailureResult = inp['runMandatoryValidation'](); 
-                if ( !isNull(swapHasil) ){
+    validateMandatoryField (): CustomValidationFailureResult[]   {
+        let rtvl: CustomValidationFailureResult[] = [] ; 
+        if ( isNull(this.state.inputElements) || this.state.inputElements!.length === 0 ) {
+            return rtvl; 
+        }
+        for ( let inp of this.state.inputElements!) {
+            let mndtoryHaveError: boolean = false ; 
+            if ( !isNull( inp['runMandatoryValidation']) ) {
+                let swapHasil: CustomValidationFailureResult = inp['runMandatoryValidation'](); 
+                if ( !isNull(swapHasil) ) {
                     rtvl.push(swapHasil); 
                     mndtoryHaveError = true ; 
                 }
             }
             if ( !mndtoryHaveError) {
-                if ( !isNull(inp['runCustomValidation']) && typeof inp['runCustomValidation']==='function'){
-                    let swapHasil : any =  inp['runCustomValidation']() ; 
+                if ( !isNull(inp['runCustomValidation']) && typeof inp['runCustomValidation'] === 'function') {
+                    let swapHasil: any =  inp['runCustomValidation']() ; 
                     if ( !isNull(swapHasil)) {
                         if ( Array.isArray(swapHasil)) {
                             rtvl.push(...swapHasil) ; 
-                        }else{
+                        } else {
                             rtvl.push(swapHasil) ; 
                         }
                     }
                 }
             }
         }
-        if ( rtvl.length ===0 ){
-            return null ; 
+        if ( rtvl.length === 0 ) {
+            let s: any = null ; 
+            return s  ; 
         }
         return rtvl ; 
     }
     /**
      * assign data ke control
      */
-    assignDataToControl  (data : DATA , updateState ? : boolean ) {
+    assignDataToControl  (data: DATA , updateState ?: boolean ) {
         console.log('[CoreBaseSubEditorPanel] assign data ke sub editor : ' , data) ; 
         this.additionalTaskBeforeRenderData(data); 
-        for ( let ctrl of this.state.inputElements) {
+        for ( let ctrl of this.state.inputElements!) {
             ctrl.assignDataToControl(this.state.editedData) ;
         }
         this.additionalTaskAfterRenderData(data);
         if (!( !isNull(updateState) && !updateState) ) {
-            this.setStateHelper (st =>{ st.editedData = this.getVariableToEditFromParentData( data); });
-        }else {
-            let swapData : any = this.state ; 
+            this.setStateHelper (st => st.editedData = this.getVariableToEditFromParentData( data));
+        } else {
+            let swapData: any = this.state ; 
             swapData.editedData = this.getVariableToEditFromParentData( data);
         }
     }  
-
-
-
     /**
      * di panggil sebelum render data
      */
-    additionalTaskBeforeRenderData (data : DATA ) {
-
+    additionalTaskBeforeRenderData (data: DATA ) {
+        //
     }
-
 
     /**
      * additional task saat selesai render data
      */
-    additionalTaskAfterRenderData (data : DATA ) {
-
+    additionalTaskAfterRenderData (data: DATA ) {
+        //
     }
-
-
-
     /**
      * nama model default untuk di proses dalam sub editor. ini di pergunakan sebagi default value untuk membaca metadata table. cek method <i>getColMaxLength</i>
      */
-    abstract getDefaultModelName () : string ; 
+    abstract getDefaultModelName (): string ; 
     /**
      * ini di pergunakan untuk menaruh max length dalam textbox.<br/>
      * misal table sec_user field : username di database panjang = 128.<br/>
@@ -194,9 +178,9 @@ export abstract class CoreBaseSubEditorPanel<DATA , PROPS extends CoreBaseSubEdi
      * @param fieldName nama field js untuk di baca metadata
      * @param modelName nama model dair object penyimpanan data. ini optional.di sediakan default untuk item ini
      */
-    getColMaxLength (fieldName : string , modelName? : string ) : number {
-        console.warn('method getColMaxLength masih berupa dummy. silakan di cek kembali')
-        //FIXME ini masih belum dengan method real
+    getColMaxLength (fieldName: string , modelName?: string ): number {
+        console.warn('method getColMaxLength masih berupa dummy. silakan di cek kembali');
+        // FIXME ini masih belum dengan method real
         return 1024  ; 
     }
 
@@ -206,66 +190,52 @@ export abstract class CoreBaseSubEditorPanel<DATA , PROPS extends CoreBaseSubEdi
      * misal sub editor edit data <i>alamat</i><br/>
      * Maka proses ini akan return : dataFromParent.alamat
      */
-    getVariableToEditFromParentData ( dataFromParent : any ) : any {
-        if (!isNull(this.props.getVariableToEditFromParentData)){
-            return this.props.getVariableToEditFromParentData(dataFromParent);
+    getVariableToEditFromParentData ( dataFromParent: any ): any {
+        if (!isNull(this.props.getVariableToEditFromParentData)) {
+            return this.props.getVariableToEditFromParentData!(dataFromParent);
         }
         return dataFromParent ; 
     }
-
-
     /**
      * membaca data dari control
      */
-    fetchDataFromControl (data : any ) {
-        let targetData : any = this.getVariableToEditFromParentData( data) ; 
-        for ( let ctrl of this.state.inputElements) {
-            ctrl.fetchDataFromControl(targetData) ;
+    fetchDataFromControl (data: any ) {
+        let targetData: any = this.getVariableToEditFromParentData( data) ; 
+        if ( !isNull(this.state.inputElements) && this.state.inputElements!.length > 0 ) {
+            for ( let ctrl of this.state.inputElements!) {
+                ctrl.fetchDataFromControl(targetData) ;
+            }
         }
+        
     }  
-
-
-
-    componentWillMount() {
-        this.props.registerToParentEditorMethod(this , false ) ;
-        if ( !isNull(this.props.variableName ) && !isNull(this.props.registerVariableMethod)) {
-            this.props.registerVariableMethod(this.props.variableName , this ) ; 
-        }
-    }
     componentWillUnmount() {
         this.props.registerToParentEditorMethod(this , true ) ; 
         if ( !isNull(this.props.variableName ) && !isNull(this.props.registerVariableMethod)) {
-            this.props.registerVariableMethod(this.props.variableName , null ) ; 
+            this.props.registerVariableMethod!(this.props.variableName! , null ) ; 
         }
     }
-
-
     /**
      * run validasi tambahan dalam proses add
      */
-    runAdditionalSaveAddValidation ( erorrMessageContainer : ReactEditorBannerMessage[] ) : boolean {
-        
+    runAdditionalSaveAddValidation ( erorrMessageContainer: ReactEditorBannerMessage[] ): boolean {
         return true ;
     } 
-
     /**
      * untuk proses edit
      */
-    runAdditionalSaveEditValidation ( erorrMessageContainer : ReactEditorBannerMessage[] ) : boolean {
+    runAdditionalSaveEditValidation ( erorrMessageContainer: ReactEditorBannerMessage[] ): boolean {
         return true ;
     } 
 
     /**
      * state default
      */
-    abstract generateDefaultState () : STATE ; 
+    abstract generateDefaultState (): STATE ; 
 
     /**
      * getter ke lookup manager
      */
-    get lookupManager () : ListOfValueManager {
+    get lookupManager (): ListOfValueManager {
         return this.props.lookupManager  ; 
     } 
-
-
 }

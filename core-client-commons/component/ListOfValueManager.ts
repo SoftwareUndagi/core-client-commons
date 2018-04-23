@@ -1,23 +1,18 @@
 import { CommonCommunicationData, LookupWithToken, LookupWithTokenResponse } from '../shared/index';
-
-
 export interface LoadLookupFromCacheDataWrapper {
 
     /**
      * data lookup yang harus di request ke server
      */
-    lookupRequests: CommonCommunicationData.LookupRequestData[]
-
+    lookupRequests: CommonCommunicationData.LookupRequestData[];
     /**
      * data lov hasil load dari cach3
      */
     cachedLookups: { [id: string]: CommonCommunicationData.CommonLookupValue[] };
 }
-
-
 /**
-     * data dari cache( localstorage)
-     */
+ * data dari cache( localstorage)
+ */
 export interface CachedLookupDefinition {
     id: string;
     version: string;
@@ -25,12 +20,9 @@ export interface CachedLookupDefinition {
     timestamp?: Date;
 }
 
-
-
-
 /**
-     * interface untuk element dengan lookup enabled
-     */
+ * interface untuk element dengan lookup enabled
+ */
 export interface LOVEnabledComponent {
     /**
      * id dari lookup. ini untuk di request kembali ke server
@@ -42,25 +34,18 @@ export interface LOVEnabledComponent {
     assignLookupData(lookupData: CommonCommunicationData.CommonLookupValue[]);
 
 }
-
-
 /**
  * interface look up manager
  */
 export interface ListOfValueManager {
-
-    /**
-     * membaca lookup dengan lov id + detail code
-    */
-    getLookup(lookupId: string, valueCode: string): CommonCommunicationData.CommonLookupValue;
-
-
-
     /**
      * nama untuk debug
      */
-    ownerNameForDebug : string  ; 
-
+    ownerNameForDebug: string  ; 
+    /**
+     * membaca lookup dengan lov id + detail code
+     */
+    getLookup(lookupId: string, valueCode: string): CommonCommunicationData.CommonLookupValue;
     /**
      * register lookup
      */
@@ -93,33 +78,26 @@ export interface ListOfValueManager {
      * @param ids id dari lookup
      */
     loadFromCache(ids: string[]): Promise<{ [id: string]: CommonCommunicationData.CommonLookupValue[] }>;
-
-
-
     /**
      * load dari cache (1 saja)
      */
-    loadFromCacheSingle(id : string ) : Promise<CommonCommunicationData.CommonLookupValue[]> ; 
-
+    loadFromCacheSingle(id: string ): Promise<CommonCommunicationData.CommonLookupValue[]> ; 
     /**
      * load data dari lookup dan generate lookup request.
      * ini bisa di pergunakan dalam mode edit. jadinya load temporary item dan request ke server
      */
     loadFromCacheAndGenerateLookupRequestWithPromise(ids: string[] /*onComplete : (reqData : CommonCommunicationData.LookupRequestData []) => any*/): Promise<LoadLookupFromCacheDataWrapper>;
-
     /**
-    * alias dari loadFromCacheAndGenerateLookupRequest
-    */
+     * alias dari loadFromCacheAndGenerateLookupRequest
+     */
     loadFromCacheAndGenerateLookupRequestUsingPromiseAlias(): Promise<CommonCommunicationData.LookupRequestData[]>;
     /**
-    * load data dari lookup dan generate lookup request.
-    * ini bisa di pergunakan dalam mode edit. jadinya load temporary item dan request ke server
-    */
+     * load data dari lookup dan generate lookup request.
+     * ini bisa di pergunakan dalam mode edit. jadinya load temporary item dan request ke server
+     */
     loadFromCacheAndGenerateLookupRequest(onComplete: (reqData: CommonCommunicationData.LookupRequestData[]) => any): any;
     /**
      * assign data lookup. misal ini di dapat dari generic edit --> /dynamics/rest-api/generic-edit/:pojo/:id, di inject langsung data ke dalam lookup
      */
     assignLookupDataToControls(lookupsData: CommonCommunicationData.CommonLookupHeader[]);
 }
-
-

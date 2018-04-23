@@ -1,26 +1,19 @@
 import { CommonCommunicationData } from '../../shared/index';
 
-
-
-
-
 /**
  * error validasi mandatory gagal
  */
-export const ERROR_CODE_MANDATORY_VALIDATION_FAILED : string ='MANDATORY_VALIDATION_FAILED';  
-
+export const ERROR_CODE_MANDATORY_VALIDATION_FAILED: string = 'MANDATORY_VALIDATION_FAILED';  
 
 /**
  * default message untuk field kosong
  */
-export const ERROR_MSG_MANDATORY_VALIDATION_FAILED : string = 'Field wajib (:businessFieldName) kosong, silakan di isi terlebih dahulu'; 
-
+export const ERROR_MSG_MANDATORY_VALIDATION_FAILED: string = 'Field wajib (:businessFieldName) kosong, silakan di isi terlebih dahulu'; 
 
 /**
  * i18n key untuk mandatory validation failed
  */
-export const ERROR_MSG_I18N_MANDATORY_VALIDATION_FAILED : string = 'client-commons.mandatory-validation-failed' ; 
-
+export const ERROR_MSG_I18N_MANDATORY_VALIDATION_FAILED: string = 'client-commons.mandatory-validation-failed' ; 
 
 /**
  * hasil kalau custom validation failed
@@ -29,51 +22,37 @@ export interface CustomValidationFailureResult {
     /**
      * nama field yang error 
      */
-    fieldName : string ; 
+    fieldName: string ; 
 
     /**
      * nama field(secara bisnis) yang error 
      */
-    businessFieldName : string ; 
-
-
+    businessFieldName: string ; 
     /**
      * kode dari error
      */
-    erorrCode : string ; 
-
-
+    erorrCode: string ; 
     /**
      * pesan error
      */
-    errorMessage : string ; 
-
+    errorMessage: string ; 
     /**
      * command untuk focus ke control
      */
-    focusToCommand : ()=> any ; 
+    focusToCommand: () => any ; 
 }
-    
-    
     
 /**
  * custom validator . di implement pada element. mandatory akan mengambil pada props
  */
 export interface CustomInputElementValidator {
-
-
     /**
      * worker untuk run custom validation ke dalam input element. kalau perlu validasi tertentu terhadap component
      * @param errorMessageContainers containers untuk error message. untuk notifikasi error 
      * @return kalau no error return null , lain return validator
      */
-    runCustomValidation (   ) : CustomValidationFailureResult|Array<CustomValidationFailureResult> ; 
+    runCustomValidation (   ): CustomValidationFailureResult|Array<CustomValidationFailureResult> ; 
 }
-    
-
-
-
-
 
 /**
  * parameter untuk custom validator dalam props
@@ -83,22 +62,18 @@ export interface CustomInputElementValidatorWithPropsParam  {
     /**
      * commannd untuk focus ke control
      */
-    focusToControl : ()=> any ; 
-
-
+    focusToControl: () => any ; 
     /**
      * nama database dari field
      */
-    fieldName : string ; 
+    fieldName: string ; 
 }
 
 export interface CustomInputElementValidatorWithProps {
-
-
     /**
      * validator untuk di dalam props
      */
-     ( param : CustomInputElementValidatorWithPropsParam   ) : CustomValidationFailureResult|Array<CustomValidationFailureResult> ; 
+     ( param: CustomInputElementValidatorWithPropsParam   ): CustomValidationFailureResult|Array<CustomValidationFailureResult> ; 
 }
     
 /**
@@ -119,7 +94,7 @@ export interface SimpleValueInputChangeHandler<DATA> {
     /**
      * event yang di trigger on change pada control
      */
-    (value : DATA) : any ; 
+    (value: DATA): any ; 
 }
 
 /**
@@ -129,18 +104,12 @@ export interface EditorInputElement {
     /**
      * assign data ke control
      */
-    assignDataToControl  (data : any , updateState ? : boolean ) ;  
-
-
+    assignDataToControl  (data: any , updateState ?: boolean ) ;  
     /**
      * membaca data dari control
      */
-    fetchDataFromControl (data : any );  
+    fetchDataFromControl (data: any );  
 }
-
-
-
-
 /**
  * parameter mandatory field
  */
@@ -149,17 +118,13 @@ export interface CustomMandatoryFieldParm {
     /**
      * nama field bisnis dari data
      */
-    bussinessFieldName : string ; 
+    bussinessFieldName: string ; 
 
     /**
      * message pada saat validasi gagal
      */
-    validationFailMessage : string ; 
+    validationFailMessage: string ; 
 }
-
-
-
-
 
 /**
  * untuk component yang perlu custom validation
@@ -169,38 +134,35 @@ export interface CustomMandatoryValidateEnabled {
     /**
      * run mandatory validation
      */
-    runMandatoryValidation () : CustomValidationFailureResult ; 
+    runMandatoryValidation (): CustomValidationFailureResult ; 
 }
-
-
 /**
  * checker variable null atau tidak
  */
-export function isVariableNull (data : any ) : boolean  {
-    return data == null || typeof data =='undefined' ; 
+export function isVariableNull (data: any ): boolean  {
+    return data == null || typeof data === 'undefined' ; 
 }
-
-
 
 /**
  * pencari lookup dari container. di pisah untuk menghindari redundansi pengecekan
  */
-export function findLookupByCode ( lookupId : string , lookupValue : string , lookupContainer : {[id: string ] : CommonCommunicationData.CommonLookupValue[]}   )  :CommonCommunicationData.CommonLookupValue {
-    if ( isVariableNull(lookupId) || lookupId.length ==0 ) {
-        return null ; 
+export function findLookupByCode ( lookupId: string , lookupValue: string , lookupContainer: {[id: string ]: CommonCommunicationData.CommonLookupValue[]}   ): CommonCommunicationData.CommonLookupValue {
+    let n: any = null ; 
+    if ( isVariableNull(lookupId) || lookupId.length === 0 ) {
+        return n ; 
     }
-    if ( isVariableNull(lookupValue) || lookupValue.length ==0 ) {
-        return null ; 
+    if ( isVariableNull(lookupValue) || lookupValue.length === 0 ) {
+        return n ; 
     }
-    if (  isVariableNull( lookupContainer) || isVariableNull(lookupContainer[lookupId]) ){
-        return null ; 
+    if (  isVariableNull( lookupContainer) || isVariableNull(lookupContainer[lookupId]) ) {
+        return n ; 
     }
 
-    let lks : CommonCommunicationData.CommonLookupValue[] = lookupContainer[lookupId] ; 
+    let lks: CommonCommunicationData.CommonLookupValue[] = lookupContainer[lookupId] ; 
     for ( var lk of lks ) {
-        if ( lk.detailCode == lookupValue) {
+        if ( lk.detailCode === lookupValue) {
             return lk ; 
         }
     }
-    return null ; 
+    return n ; 
 }

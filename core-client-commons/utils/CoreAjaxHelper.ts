@@ -5,11 +5,9 @@ import { isNull } from './CommonUtils';
  */
 export class CoreAjaxHelper {
     /**
-         * handler kalau login sudah habis
-         */
+     * handler kalau login sudah habis
+     */
     static LOGIN_EXPIRED_HANDLER: () => any;
-
-
     /**
      * flag enable cross origin atau tidak. normal dalam web = false, untuk chrome app = true 
      */
@@ -18,13 +16,9 @@ export class CoreAjaxHelper {
     /**
      * constructor util. http akan di pass oleh angular
      */
-    constructor(baseUrl ? : string ) {
-        this.baseUrl = baseUrl;
+    constructor(baseUrl ?: string ) {
+        this.baseUrl = baseUrl!;
     }
-
-
-
-
 
     /**
      * generate full url dari service
@@ -51,26 +45,21 @@ export class CoreAjaxHelper {
                 rtvl = rtvl + '/' + serviceUrl;
             }
         }
+        return rtvl; 
     }
-
-
     /**
      * check login expired atau tidak. kalau return true , callback tidak akan di panggil, login expired langsung di trigger
      */
     doCheckLoginExpired(ajaxResult: any): boolean {
-        if (CoreAjaxHelper.LOGIN_EXPIRED_HANDLER == null || typeof CoreAjaxHelper.LOGIN_EXPIRED_HANDLER == 'undefined') {
+        if (CoreAjaxHelper.LOGIN_EXPIRED_HANDLER == null || typeof CoreAjaxHelper.LOGIN_EXPIRED_HANDLER === 'undefined') {
             return false;
         }
-        if (ajaxResult.errorCode == 'ERROR_LOGIN_EXPIRED') {
+        if (ajaxResult.errorCode === 'ERROR_LOGIN_EXPIRED') {
             CoreAjaxHelper.LOGIN_EXPIRED_HANDLER();
             return true;
         }
         return false;
     }
-
-
-
-
 
     /**
      * invoke get. 
@@ -92,31 +81,26 @@ export class CoreAjaxHelper {
             });
         });
     }
-
-
     generateStringValue(val: any): string {
+        let s: any = null ; 
         if (val == null || typeof val === 'undefined') {
-            return null;
+            return s;
         }
-        if (typeof val == 'number') {
+        if (typeof val === 'number') {
             return val + '';
         }
-        if (typeof val == 'string') {
+        if (typeof val === 'string') {
             return val;
         }
         return JSON.stringify(val);
     }
-
-
-
-
     /**
      * handler untuk json result
      */
     jsonResultHandler(rawData: Response, accept: (d: any) => any, reject: (exc: any) => any) {
         if (rawData.ok) {
             rawData.json().then((jsonData: any) => {
-                if (jsonData.haveError != null && typeof jsonData.haveError != 'undefined') {
+                if (jsonData.haveError != null && typeof jsonData.haveError !== 'undefined') {
                     if (jsonData.haveError) {
                         if (this.doCheckLoginExpired(jsonData)) {
                             return;
@@ -189,13 +173,9 @@ export class CoreAjaxHelper {
         });
     }
 
-
     getMode(): any {
         return CoreAjaxHelper.ENABLE_CROSS_ORIGIN_REQUEST ? 'cors' : 'same-origin';
     }
-
-
-
 
     /**
      * invoke method : put
@@ -223,7 +203,7 @@ export class CoreAjaxHelper {
                 mode: this.getMode(),
                 credentials: 'include',
                 headers: h,
-            }
+            };
             if (param != null && typeof param !== 'undefined') {
                 reqInit.body = JSON.stringify(param);
             }
@@ -235,9 +215,6 @@ export class CoreAjaxHelper {
             });
         });
     }
-
-
-
     /**
      * http delete. disingkat agar tidak bentrok dengan statement delete
      */
@@ -264,7 +241,7 @@ export class CoreAjaxHelper {
      * ajax dengan method get
      */
     sendAjaxGet<RESULT>(url: string, onSuccess: (data: RESULT) => any, onFailure: (errorCode: string, errorMessage: string, actualException: any) => any) {
-        this.get(url).then(d => { onSuccess(d) })
+        this.get(url).then(d => { onSuccess(d) ; })
             .catch((exc: any) => {
                 onFailure(exc.errorCode, exc.message, exc);
             });
@@ -279,12 +256,9 @@ export class CoreAjaxHelper {
         })
             .catch(exc => {
                 onFailure(exc.errorCode, exc.message, exc);
-            })
+            });
 
     }
-
-
-
     /**
      * send <i>PUT</i>
      */
@@ -295,9 +269,6 @@ export class CoreAjaxHelper {
             onFailure(exc.errorCode, exc.message, exc);
         });
     }
-
-
-
     sendAjaxDelete<RESULT>(url: string, onSuccess: (data: RESULT) => any, onFailure: (errorCode: string, errorMessage: string, actualException: any) => any) {
         this.del(url).then(d => {
             onSuccess(d);

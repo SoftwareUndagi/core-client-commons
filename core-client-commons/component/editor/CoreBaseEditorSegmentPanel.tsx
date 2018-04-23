@@ -1,137 +1,100 @@
-import * as React from "react" ;
-import { isNull, readNested, setValueHelper } from '../../utils/index';
+import { isNull } from '../../utils/index';
 import { CommonCommunicationData    } from '../../shared/index';
 import { ListOfValueManager } from '../ListOfValueManager' ; 
 import { EditorInputElement } from './CommonsInputElement';
 import { BaseComponent } from '../BaseComponent';
 import { editorsupport } from './editorsupport'; 
-
-
 export interface CoreBaseEditorSegmentPanelProps <DATA> {
 
     /**
      * data yang di edit
      */
-    currentEditedData : DATA ; 
-
-
+    currentEditedData: DATA ; 
     /**
      * state dari editor
      */
-    editorState : 'add' |'edit'|'delete'|'view' ; 
+    editorState: 'add' |'edit'|'delete'|'view' ; 
 
     /**
      * worker untuk unreg input panel. sebaiknya tidak mempergunakan ini secara langsung. pergunakan method : registrarInputElement  pada control, 
      * dengan begitu control akan terdaftar pada component, bukan cuma di parent
      */
     registrarInputElement: (inputElement: EditorInputElement, unRegFlag: boolean) => any;
-
-
-
     /**
      * container lookup
      */
-    lookupContainers  : {[id:string] : CommonCommunicationData.CommonLookupValue[] }; 
+    lookupContainers: {[id: string]: CommonCommunicationData.CommonLookupValue[] }; 
     /**
      * lookup manager pada parent 
      */
-    lookupManager : ListOfValueManager ; 
-
-
-
+    lookupManager: ListOfValueManager ; 
     /**
      * assign data lookup
      */
-    assignLookupData  : (lovId: string , lookups :  CommonCommunicationData.CommonLookupValue[])=> any ; 
-
-
+    assignLookupData: (lovId: string , lookups:  CommonCommunicationData.CommonLookupValue[]) => any ; 
     /**
      * untuk update state pada edited data pada container dari segment
      * @param method untuk update state. anda perlu update pada bagian data saja, update state akan di handle 
      */
-    updateEditedDataOnParentContainerState :  ( f: (dataToUpdate : DATA ) => any    )=>any ; 
-
-
+    updateEditedDataOnParentContainerState:  ( f: (dataToUpdate: DATA ) => any    ) => any ; 
     /**
      * flag load data pada saat component mounted atau tidak. kalau true method : reAssignDataToControl
      */
-    loadDataMounted ? : boolean ; 
-
-
+    loadDataMounted ?: boolean ; 
     /**
      * register sub editor ke parent
      */
-    registerToParentEditor : (  subEditor : editorsupport.EditorSubPanelHandler<DATA> ) => any ; 
-
-
+    registerToParentEditor: (  subEditor: editorsupport.EditorSubPanelHandler<DATA> ) => any ; 
     /**
      * unregister dari parent
      */
-    unRegisterFromParentEditor : (  subEditor : editorsupport.EditorSubPanelHandler<DATA> ) => any ; 
+    unRegisterFromParentEditor: (  subEditor: editorsupport.EditorSubPanelHandler<DATA> ) => any ; 
 }
-
-
-export interface CoreBaseEditorSegmentPanelState <DATA> {} 
-
-
-
+export interface CoreBaseEditorSegmentPanelState <DATA> {
+    dummyVar ?: DATA ; 
+} 
 
 /**
  * segment helper dari editor. agar bisa break down editor dalam component-component
  */
-export abstract class CoreBaseEditorSegmentPanel<DATA , PROPS extends CoreBaseEditorSegmentPanelProps<DATA> ,STATE extends CoreBaseEditorSegmentPanelState<DATA>>  extends BaseComponent <PROPS , STATE> implements editorsupport.EditorSubPanelHandler<DATA>{
-
-
-
+export abstract class CoreBaseEditorSegmentPanel<DATA , PROPS extends CoreBaseEditorSegmentPanelProps<DATA> , STATE extends CoreBaseEditorSegmentPanelState<DATA>>  extends BaseComponent <PROPS , STATE> implements editorsupport.EditorSubPanelHandler<DATA> {
     /**
      * controls input
      */
-    controls : EditorInputElement[] =[]; 
-    constructor(public modelName : string , props : PROPS ){
+    controls: EditorInputElement[] = []; 
+    constructor(public modelName: string , props: PROPS ) {
         super(props) ; 
         this.state = this.generateDefaultState () ; 
     }    
-
-
-
-
     
     /**
      * worker untuk unreg input panel. 
      * ini register internal + register ke parent
      */
-    registrarInputElement :  (inputElement: EditorInputElement, unRegFlag: boolean)  =>  any = (inputElement: EditorInputElement, unRegFlag: boolean)  =>{
+    registrarInputElement: (inputElement: EditorInputElement, unRegFlag: boolean)  =>  any = (inputElement: EditorInputElement, unRegFlag: boolean)  => {
         if ( unRegFlag) {
-            let idx : number = this.controls.indexOf(inputElement) ; 
-            if ( idx >=0 ) {
+            let idx: number = this.controls.indexOf(inputElement) ; 
+            if ( idx >= 0 ) {
                 this.controls.splice(idx , 1) ; 
             }
-            
-        }else{
-            let idx : number = this.controls.indexOf(inputElement) ; 
-            if ( idx <0 ) {
+        } else {
+            let idx: number = this.controls.indexOf(inputElement) ; 
+            if ( idx < 0 ) {
                 this.controls.push(inputElement);
             }
         }
         this.props.registrarInputElement(inputElement , unRegFlag);
     }
-
-
-
-
-
     componentDidMount () {
         if ( !isNull(this.props.loadDataMounted) && this.props.loadDataMounted) {
             this.reAssignDataToControl(); 
         }
-        if ( !isNull(this.props.registerToParentEditor)){
+        if ( !isNull(this.props.registerToParentEditor)) {
             this.props.registerToParentEditor(this) ; 
         }
     }
-
-
     componentWillUnmount() {
-        if ( !isNull(this.props.unRegisterFromParentEditor)){
+        if ( !isNull(this.props.unRegisterFromParentEditor)) {
             this.props.unRegisterFromParentEditor(this) ; 
         }
     }
@@ -139,14 +102,12 @@ export abstract class CoreBaseEditorSegmentPanel<DATA , PROPS extends CoreBaseEd
     /**
      * generate state awal data
      */
-    abstract generateDefaultState () : STATE  ; 
-
-
+    abstract generateDefaultState (): STATE  ; 
     /**
      * re-assign data dari state ke control
      */
     reAssignDataToControl () {
-        let val : any = this.props.currentEditedData ; 
+        let val: any = this.props.currentEditedData ; 
         if ( isNull(this.props.currentEditedData)) {
             val = {} ; 
         }
@@ -154,8 +115,6 @@ export abstract class CoreBaseEditorSegmentPanel<DATA , PROPS extends CoreBaseEd
             ctrl.assignDataToControl(val);
         }
     }
-
-
     /**
      * ini di pergunakan untuk menaruh max length dalam textbox.<br/>
      * misal table sec_user field : username di database panjang = 128.<br/>
@@ -168,31 +127,30 @@ export abstract class CoreBaseEditorSegmentPanel<DATA , PROPS extends CoreBaseEd
      * @param fieldName nama field js untuk di baca metadata
      * @param modelName nama model dair object penyimpanan data. ini optional.di sediakan default untuk item ini
      */
-    abstract getColMaxLength (fieldName : string , modelName? : string ) : number  ; 
+    abstract getColMaxLength (fieldName: string , modelName?: string ): number  ; 
     
     /**
      * task tambahan dalam proses delete data
      */
-    additionalTaskOnDelete(data: DATA) { }
+    additionalTaskOnDelete(data: DATA) { 
+        //
+    }
     /**
      * task tambahan pada saat init edit data
      */
-    additionalTaskOnEdit(data: DATA) { }
+    additionalTaskOnEdit(data: DATA) { 
+        //
+    }
     /**
      * task tambahan dalam proses add new data
      */
     additionalTaskOnAdd(data: DATA) {
-
+        //
     }
     /**
      * task tambahan dalam proses view
      */
     additionalTaskOnView(data: DATA) {
-
+        //
     }
-
-
-    
-
-
 }

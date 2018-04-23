@@ -1,11 +1,6 @@
-import { isNull } from '../../utils/CommonUtils';
-import { CommonCommunicationData } from '../../shared/index';
-
-
-
 /**
-	 * container modifikasi data
-	 */
+ * container modifikasi data
+ */
 export interface MoficationDataResultContainer<DATA> {
     /**
      * item-item yang baru di buat
@@ -17,6 +12,6 @@ export interface MoficationDataResultContainer<DATA> {
     erasedItems?: DATA[];
     /**
      * item yang di modif
-      */
+     */
     modifiedItems?: DATA[];
 }

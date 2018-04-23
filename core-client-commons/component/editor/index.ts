@@ -8,6 +8,3 @@ export * from './CoreBaseSubEditorPanel';
 export * from './EditorComponent'; 
 export * from './MoficationDataResultContainer'; 
 export * from './CommonsInputElement'; 
-
-
-
