@@ -19,7 +19,7 @@ export interface CoreBaseEditorSegmentPanelProps <DATA> {
      * worker untuk unreg input panel. sebaiknya tidak mempergunakan ini secara langsung. pergunakan method : registrarInputElement  pada control, 
      * dengan begitu control akan terdaftar pada component, bukan cuma di parent
      */
-    registrarInputElement: (inputElement: EditorInputElement, unRegFlag: boolean) => any;
+    registrarInputElement: (inputElement: any, unRegFlag?: boolean) => any;
     /**
      * container lookup
      */

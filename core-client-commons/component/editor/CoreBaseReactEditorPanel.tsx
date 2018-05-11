@@ -125,7 +125,7 @@ export abstract class CoreBaseReactEditorPanel<DATA  , PROP , STATE extends Core
     /**
      * worker untuk unreg input panel
      */
-    registrarInputElement: (inputElement: EditorInputElement , unRegFlag: boolean ) => any = ( inputElement: EditorInputElement , unRegFlag: boolean ) => {
+    registrarInputElement: (inputElement: any , unRegFlag?: boolean ) => any = ( inputElement: EditorInputElement , unRegFlag?: boolean ) => {
         unRegFlag = unRegFlag || false ;
         if ( unRegFlag) {
             let idx: number = this.inputElements.indexOf(inputElement); 

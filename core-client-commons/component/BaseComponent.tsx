@@ -8,14 +8,14 @@ export interface BaseComponentState {}
  * base class untuk component. untuk  memasukan general purpose method
  */
 export abstract class BaseComponent<PROPS extends BaseComponentProps , STATE extends BaseComponentState> extends React.Component<PROPS , STATE> {
-    protected anyObjectCache: {[id:string]: any } = {} ; 
+    protected anyObjectCache: {[id: string]: any } = {} ; 
 
     /**
      * menaruh variable dalam cache. ini rencana di pakai untuk handler element, click tap dsb
      * @param key key dari object
      * @param generator generator object. misal kalau method, lebih simple dengan ini
      */
-    getOrPutToCache ( key: string , generator: () => any  ) : any {
+    getOrPutToCache ( key: string , generator: () => any  ): any {
         if ( this.anyObjectCache[key]) {
             return this.anyObjectCache ; 
         }
