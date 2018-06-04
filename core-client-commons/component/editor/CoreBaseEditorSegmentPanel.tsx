@@ -71,7 +71,7 @@ export abstract class CoreBaseEditorSegmentPanel<DATA , PROPS extends CoreBaseEd
      * worker untuk unreg input panel. 
      * ini register internal + register ke parent
      */
-    registrarInputElement: (inputElement: EditorInputElement, unRegFlag: boolean)  =>  any = (inputElement: EditorInputElement, unRegFlag: boolean)  => {
+    registrarInputElement: (inputElement: any , unRegFlag?: boolean)  =>  any = (inputElement: any, unRegFlag?: boolean)  => {
         if ( unRegFlag) {
             let idx: number = this.controls.indexOf(inputElement) ; 
             if ( idx >= 0 ) {

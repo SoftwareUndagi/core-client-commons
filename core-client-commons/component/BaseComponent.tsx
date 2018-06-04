@@ -10,6 +10,9 @@ export interface BaseComponentState {}
 export abstract class BaseComponent<PROPS extends BaseComponentProps , STATE extends BaseComponentState> extends React.Component<PROPS , STATE> {
     protected anyObjectCache: {[id: string]: any } = {} ; 
 
+    constructor(props: PROPS) {
+        super(props) ; 
+    }
     /**
      * menaruh variable dalam cache. ini rencana di pakai untuk handler element, click tap dsb
      * @param key key dari object

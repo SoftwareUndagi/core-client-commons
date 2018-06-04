@@ -2,7 +2,7 @@
     "compilerOptions": {
         "target": "es2017" , 
         "module": "system" ,
-        "outFile": "./dist/index.js", 
+        "outDir": "./dist/", 
         "moduleResolution": "node",
         "declaration": true, 
         "sourceMap": true , 
@@ -11,8 +11,9 @@
         
     } , 
     "files": [
-        "./core-client-commons.ts" , 
-        "./node_modules/@types/react/index.d.ts" , 
+        "./index.ts" , 
+        "./node_modules/@types/react/index.d.ts", 
         "./node_modules/base-commons-module/dist/index.d.ts"
+
     ]
 }

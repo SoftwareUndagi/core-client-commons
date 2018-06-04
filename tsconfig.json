@@ -33,6 +33,8 @@
         "**/*.spec.ts",
         "**/*.test.ts",
         "config",
-        "dist"
+        "dist", 
+        "core-client-commons.ts" , 
+        "index.ts"
       ]
 }
