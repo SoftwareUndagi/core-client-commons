@@ -72,7 +72,10 @@ export abstract class BaseComponent<PROPS extends BaseComponentProps , STATE ext
                     destVal = readNested(comparedStateOrProp , f) ; 
                 }
                 if ( Array.isArray(srcVal) || Array.isArray(destVal)) {
-                    return !ObjectUtils.compareFieldsArray( srcVal , destVal , []) ; 
+                    let rtvl: boolean =  !ObjectUtils.compareFieldsArray( srcVal , destVal , []) ; 
+                    if ( rtvl) {
+                        return true ; 
+                    }
                 }
                 if ( srcVal !== destVal) {
                     return true ; 
