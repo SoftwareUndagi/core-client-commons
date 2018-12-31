@@ -48,7 +48,7 @@ export interface AdditionalEditorTask <DATA> {
      * handler on edit
      * @param data data yang di edit
      */
-    (data: DATA) ;
+    (data: DATA): void  ;
 }
 /**
  * holder ajax request
@@ -73,9 +73,9 @@ export interface EditorSubcomponentInterface <DATA> {
      * assign data ke dalam sub editor
      * @param additionalDataContainer penampung data pada sub. kalau misal data tidak bisa di muat pada dat autama, maka akan di masukan dalam hash map
      */
-    assignData (data: DATA  , editorState: string  , additionalDataContainer: {[id: string]: any } )  ; 
+    assignData (data: DATA  , editorState: string  , additionalDataContainer: {[id: string]: any } ): void   ; 
     /**
      * task tambahan pada saat di assign 
      */
-    additionalTaskOnDataAssigned(data: DATA  , editorState: string , additionalDataContainer: {[id: string]: any }) ;
+    additionalTaskOnDataAssigned(data: DATA  , editorState: string , additionalDataContainer: {[id: string]: any }): void  ;
 }

@@ -1,18 +1,40 @@
 {
     "compilerOptions": {
-        "target": "es2017" , 
-        "module": "system" , 
-        //webpack version "target": "es6",
-        // "module": "esnext",
-        "outFile": "./dist/index.js", 
-        "declaration": true, 
-        "sourceMap": true , 
+        "outDir": "build/lib",
+        "module": "commonjs",
+        "target": "es5",
+        "lib": [
+            "es5",
+            "es6",
+            "dom"
+        ],
+        "sourceMap": true,
+        "allowJs": false,
         "jsx": "react",
-        "removeComments": false
-        
-    } , 
-    "files": [
-        "./CoreClientCommons.ts" , 
-        "./node_modules/@types/react/index.d.ts"
-    ]
+        "moduleResolution": "node",
+        "rootDir": "core-client-commons",
+        "forceConsistentCasingInFileNames": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "noUnusedLocals": true,
+        "declaration": true
+    },
+    "exclude": [
+        "node_modules",
+        "build",
+        "scripts",
+        "acceptance-tests",
+        "webpack",
+        "jest",
+        "core-client-commons/setupTests.ts",
+        "**/*.spec.ts",
+        "**/*.test.ts",
+        "config",
+        "dist", 
+        "core-client-commons.ts" , 
+        "index.ts"
+      ]
 }

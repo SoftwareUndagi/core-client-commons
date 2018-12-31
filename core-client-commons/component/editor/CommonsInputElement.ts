@@ -104,11 +104,11 @@ export interface EditorInputElement {
     /**
      * assign data ke control
      */
-    assignDataToControl  (data: any , updateState ?: boolean ) ;  
+    assignDataToControl  (data: any , updateState ?: boolean ): void ;  
     /**
      * membaca data dari control
      */
-    fetchDataFromControl (data: any );  
+    fetchDataFromControl (data: any ): void ;  
 }
 /**
  * parameter mandatory field

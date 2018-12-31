@@ -57,7 +57,7 @@ export abstract class CoreBaseSubEditorPanel<DATA , PROPS extends CoreBaseSubEdi
     /**
      * worker untuk unreg input panel
      */
-    registrarInputElement: (inputElement: EditorInputElement , unRegFlag: boolean ) => any ;
+    registrarInputElement: (inputElement: any , unRegFlag?: boolean ) => any ;
     
     /**
      * register variable ke parent

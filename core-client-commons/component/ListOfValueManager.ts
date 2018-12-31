@@ -31,7 +31,7 @@ export interface LOVEnabledComponent {
     /**
      * assign lookup header data
      */
-    assignLookupData(lookupData: CommonCommunicationData.CommonLookupValue[]);
+    assignLookupData(lookupData: CommonCommunicationData.CommonLookupValue[]): void;
 
 }
 /**
@@ -49,7 +49,7 @@ export interface ListOfValueManager {
     /**
      * register lookup
      */
-    register(lov: LOVEnabledComponent);
+    register(lov: LOVEnabledComponent): void;
     /**
      * id dari lookups. dalam editor memerlukan looup apa saja
      */
@@ -66,7 +66,7 @@ export interface ListOfValueManager {
     /**
      * request lookup data ke server
      */
-    requestLookupData(lookupParam: LookupWithToken, onComplete?: (indexedLookup: { [id: string]: CommonCommunicationData.CommonLookupValue[] }) => any);
+    requestLookupData(lookupParam: LookupWithToken, onComplete?: (indexedLookup: { [id: string]: CommonCommunicationData.CommonLookupValue[] }) => any): void;
     /**
      * proses lookup data, di terima dari server , di masukan kembali ke dalam control dan cache
      * return : cache yang di update
@@ -99,5 +99,5 @@ export interface ListOfValueManager {
     /**
      * assign data lookup. misal ini di dapat dari generic edit --> /dynamics/rest-api/generic-edit/:pojo/:id, di inject langsung data ke dalam lookup
      */
-    assignLookupDataToControls(lookupsData: CommonCommunicationData.CommonLookupHeader[]);
+    assignLookupDataToControls(lookupsData: CommonCommunicationData.CommonLookupHeader[]): void;
 }

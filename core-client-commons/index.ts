@@ -26,3 +26,4 @@ export * from './component/editor/EditorComponent';
 export * from './component/editor/EditorComponentData'; 
 export * from './component/editor/editorsupport'; 
 export * from './component/editor/MoficationDataResultContainer'; 
+export { extractParameterListFromString } from 'base-commons-module/index'; 

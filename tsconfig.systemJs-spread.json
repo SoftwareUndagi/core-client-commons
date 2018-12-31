@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "target": "es2017" , 
+        "module": "system" ,
+        "outDir": "./dist/", 
+        "moduleResolution": "node",
+        "declaration": true, 
+        "sourceMap": true , 
+        "jsx": "react",
+        "removeComments": false
+        
+    } , 
+    "files": [
+        "./index.ts" , 
+        "./node_modules/@types/react/index.d.ts", 
+        "./node_modules/base-commons-module/dist/index.d.ts"
+
+    ]
+}

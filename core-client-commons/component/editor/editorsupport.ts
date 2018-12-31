@@ -12,19 +12,19 @@ export interface EditorSubPanelHandler<DATA> {
     /**
      * task tambahan dalam proses delete data
      */
-    additionalTaskOnDelete(data: DATA);
+    additionalTaskOnDelete(data: DATA): void ;
     /**
      * task tambahan pada saat init edit data
      */
-    additionalTaskOnEdit(data: DATA);
+    additionalTaskOnEdit(data: DATA): void ;
     /**
      * task tambahan dalam proses add new data
      */
-    additionalTaskOnAdd(data: DATA);
+    additionalTaskOnAdd(data: DATA): void ;
     /**
      * task tambahan dalam proses view
      */
-    additionalTaskOnView(data: DATA);
+    additionalTaskOnView(data: DATA): void ;
 }
 /**
  * untuk detach event

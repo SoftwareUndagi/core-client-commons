@@ -412,12 +412,12 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
     /**
      * assign lookup ke dalam control
      */
-    abstract assignLookupDataToControlWorker(id: string, lovs: CommonCommunicationData.CommonLookupValue[])  ;
+    abstract assignLookupDataToControlWorker(id: string, lovs: CommonCommunicationData.CommonLookupValue[]): void ;
     /**
      * kirim data ke cache( localstorage - chrome storage)
      * @param lookupData
      */
-    abstract sendToCache(lookupData: CommonCommunicationData.CommonLookupHeader)  ;
+    abstract sendToCache(lookupData: CommonCommunicationData.CommonLookupHeader): void  ;
     /**
      * membaca dari local storage atau chrome storage
      */

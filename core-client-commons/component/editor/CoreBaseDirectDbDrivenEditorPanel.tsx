@@ -6,6 +6,7 @@ import { AdditionalEditorTask } from './EditorComponentData';
 import { isNull, ObjectUtils } from '../../utils/index';
 import { LookupWithToken } from '../../shared/index';
 import { CustomValidationFailureResult } from "./CommonsInputElement";
+import { editorsupport } from '../..';
 /**
  * state untuk data id
  */
@@ -76,12 +77,12 @@ export interface CoreBaseDirectDbDrivenEditorPanelProps<DATA, ID> {
     /**
      * parameter untuk perilaku editor dalam kasus save done. ini di pergunakan untuk pada saat save done
      */
-    editorBehaviorOnSaveDoneParameter?: EditorBehaviorOnSaveDoneParameter ; 
+    editorBehaviorOnSaveDoneParameter?: EditorBehaviorOnSaveDoneParameter;
 
     /**
      * task yang akan di run efektif setelah data selesai di simpan(add / edit/delete)
      */
-    taskAfterDataSaved ?: ( data: DATA ) => any ; 
+    taskAfterDataSaved?: (data: DATA) => any;
 
 }
 
@@ -146,24 +147,24 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
         swapState.editingModeEnabled = true;
         // register child
         this.additionalOnAddTaskHandlers.push((d: DATA) => {
-            this.subEditorHandlers.forEach( suEditor => {
-                suEditor.additionalTaskOnAdd(d); 
-            }); 
-        }); 
+            this.subEditorHandlers.forEach(suEditor => {
+                suEditor.additionalTaskOnAdd(d);
+            });
+        });
         this.additionalOnEraseTaskHandlers.push((d: DATA) => {
-            this.subEditorHandlers.forEach( suEditor => {
-                suEditor.additionalTaskOnDelete(d); 
-            }); 
+            this.subEditorHandlers.forEach(suEditor => {
+                suEditor.additionalTaskOnDelete(d);
+            });
         });
         this.additionalOnEditTaskHandlers.push((d: DATA) => {
-            this.subEditorHandlers.forEach( suEditor => {
-                suEditor.additionalTaskOnEdit(d); 
-            }); 
-        }); 
+            this.subEditorHandlers.forEach(suEditor => {
+                suEditor.additionalTaskOnEdit(d);
+            });
+        });
         this.additionalOnViewTaskHandlers.push((d: DATA) => {
-            this.subEditorHandlers.forEach( suEditor => {
-                suEditor.additionalTaskOnView(d); 
-            }); 
+            this.subEditorHandlers.forEach(suEditor => {
+                suEditor.additionalTaskOnView(d);
+            });
         });
 
     }
@@ -183,7 +184,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
      * editor state. shortcute ke state.editorState
      */
     get editorState(): string {
-        let n: any = null ; 
+        let n: any = null;
         if (this.state == null || typeof this.state === 'undefined') {
             return n;
         }
@@ -223,7 +224,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
     /**
      * task tambahan pada saat component mount
      */
-    additionalTaskOnMount() { 
+    additionalTaskOnMount() {
         //
     }
     componentWillMount() {
@@ -251,16 +252,16 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
         }
         if (!doNotCall) {
             if (this.props.editorState === 'add') {
-                let sDtBaru: any = this.props.dataForAddNew; 
+                let sDtBaru: any = this.props.dataForAddNew;
                 this.addNewData(sDtBaru);
             } else if (this.props.editorState === 'edit') {
-                let sDtEdit: any = this.props.dataIdToEdit ;
+                let sDtEdit: any = this.props.dataIdToEdit;
                 this.editData(sDtEdit);
             } else if (this.props.editorState === 'view') {
-                let sDtView: any = this.props.dataIdToEdit; 
+                let sDtView: any = this.props.dataIdToEdit;
                 this.viewData(sDtView);
             } else if (this.props.editorState === 'delete') {
-                let sDtView: any = this.props.dataIdToEdit; 
+                let sDtView: any = this.props.dataIdToEdit;
                 this.deleteConfirmation(sDtView);
             }
         }
@@ -275,7 +276,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
     /**
      * tutup editor. gunakan ini untuk tombol tutup
      */
-    close: () => any = () =>  {
+    close: () => any = () => {
         this.closeCommand();
     }
 
@@ -316,7 +317,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
      * model yang di include pada saat read. override ini kalau memang memerlukan field tambahan
      */
     getIncludeModels(): CommonCommunicationData.IncludeModelParam[] {
-        let s: any = null ; 
+        let s: any = null;
         return s;
     }
     /**
@@ -367,7 +368,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
      * field-field yang boleh di update. karena server memerlukan nama field untuk di update
      */
     getUpdateAbleFields(): string[] {
-        let s: any = null ; 
+        let s: any = null;
         return s;
     }
 
@@ -376,7 +377,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
      */
     requestLookupReload() {
         if (this.lookupManager.getLookupIds().length > 0) {
-            let s: any = null ; 
+            let s: any = null;
             let lookupParam: LookupWithToken = {
                 dataIdAsString: s,
                 modelName: this.getModelName(),
@@ -387,41 +388,41 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                     //
                 }
             };
-            this.lookupManager.requestLookupData( lookupParam );
+            this.lookupManager.requestLookupData(lookupParam);
         }
     }
 
     requestLookupReloadWithPromise(): Promise<any> {
-        let s: any = null ; 
-        if ( this.lookupManager.getLookupIds().length === 0 ) {
-            return new Promise<any>(( accept: (n: any ) => any ) => {
-                accept({}) ; 
-            }); 
+        let s: any = null;
+        if (this.lookupManager.getLookupIds().length === 0) {
+            return new Promise<any>((accept: (n: any) => any) => {
+                accept({});
+            });
         }
         return this.lookupManager.requestLookupDataWithPromise({
             dataIdAsString: s,
-            modelName: this.getModelName(), 
+            modelName: this.getModelName(),
             onTokenAccepted: (token: string) => {
-                if ( !isNull(token) && token !== this.state.editorDataToken) {
-                    this.setStateHelper( st => {
-                        st.editorDataToken = token ; 
-                    }); 
+                if (!isNull(token) && token !== this.state.editorDataToken) {
+                    this.setStateHelper(st => {
+                        st.editorDataToken = token;
+                    });
                 }
             },
             onLookupAccepted: (indexedLookup: { [id: string]: CommonCommunicationData.CommonLookupValue[] }) => {
-                if ( !isNull(indexedLookup) ) {
-                    let keys: string[] = Object.keys(indexedLookup) ; 
-                    if ( keys.length > 0 ) {
-                        this.setStateHelper( st => {
-                            if (isNull( st.lookups) ) {
-                                st.lookups = {} ; 
+                if (!isNull(indexedLookup)) {
+                    let keys: string[] = Object.keys(indexedLookup);
+                    if (keys.length > 0) {
+                        this.setStateHelper(st => {
+                            if (isNull(st.lookups)) {
+                                st.lookups = {};
                             }
-                        }); 
+                        });
                     }
                 }
 
             }
-        }); 
+        });
 
     }
     /**
@@ -434,8 +435,8 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                     callback!();
                 }
             })
-            .catch(exc => { 
-                console.error('gagal add : ', exc );
+            .catch(exc => {
+                console.error('gagal add : ', exc);
             });
     }
 
@@ -443,8 +444,8 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
      * worker untuk membuat data
      */
     addNewDataWorker(newData: DATA): Promise<any> {
-        let s: any = null ; 
-        return new Promise<any>( (accept: (n: any) => any, reject: (exc: any ) => any) => {
+        let s: any = null;
+        return new Promise<any>((accept: (n: any) => any, reject: (exc: any) => any) => {
             let completionTaskAndDoAccept: () => any = () => {
                 setTimeout(
                     () => {
@@ -452,7 +453,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                         for (var addHdlr of this.additionalOnAddTaskHandlers) {
                             addHdlr(newData);
                         }
-                    }, 
+                    },
                     200);
                 accept({});
             };
@@ -466,13 +467,13 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                 this.lookupManager.requestLookupDataWithPromise({
                     lookupIds: ids,
                     modelName: this.getModelName(),
-                    onTokenAccepted: (tkn: string) => { 
+                    onTokenAccepted: (tkn: string) => {
                         //
                     },
-                    onLookupAccepted: (indexedLookup: { [id: string]: CommonCommunicationData.CommonLookupValue[] }) => { 
+                    onLookupAccepted: (indexedLookup: { [id: string]: CommonCommunicationData.CommonLookupValue[] }) => {
                         //
                     }
-                }).then( (d: LookupWithTokenResponse) => {
+                }).then((d: LookupWithTokenResponse) => {
                     this.setStateHelper(
                         sln => {
                             sln.editorDataToken = d.token;
@@ -489,24 +490,24 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                             sln.currentEditedData = newData;
                             sln.editorState = 'add';
                             sln.id = s;
-        
-                        }, 
+
+                        },
                         () => {
                             completionTaskAndDoAccept();
                         });
                 }).catch(reject);
             } else {
-                this.requestEditDataTokenWithPromise(s).then( token => {
+                this.requestEditDataTokenWithPromise(s).then(token => {
                     this.setStateHelper(
                         sln => {
                             sln.editorDataToken = token;
                             sln.currentEditedData = newData;
                             sln.editorState = 'add';
                             sln.id = s;
-                        }, 
+                        },
                         () => {
-                        completionTaskAndDoAccept();
-                    });
+                            completionTaskAndDoAccept();
+                        });
                 }).catch(reject);
             }
         });
@@ -515,7 +516,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
      * request token dan langsung update token di editor
      */
     requestAndUpdateToken() {
-        let s: any = null ; 
+        let s: any = null;
         let id: string = s;
         if (['edit', 'delete'].indexOf(this.state.editorState) >= 0) {
             id = this.getDataIdAsString(this.state.currentEditedData);
@@ -536,7 +537,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
      * request token edit dari server. kalau erorr code bukan
      */
     requestEditDataTokenWithPromise(objectId: string): Promise<string> {
-        return new Promise<string>( (accept: (n: string) => any, reject: (exc: any) => any) => {
+        return new Promise<string>((accept: (n: string) => any, reject: (exc: any) => any) => {
             let url: string = "/dynamics/rest-api/generic/" + this.getModelName() + "/double-submit-token-generator.svc";
             if (!isNull(objectId) && objectId.length > 0) {
                 url += "?objectId=" + objectId;
@@ -551,13 +552,13 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
      * @param objectId 
      */
     requestEditDataTokenFacade(objectId: string): Promise<string> {
-        return new Promise<string>( (accept: (n: string) => any, reject: (exc: any) => any) => {
+        return new Promise<string>((accept: (n: string) => any, reject: (exc: any) => any) => {
             this.requestEditDataTokenWithPromise(objectId)
                 .then(d => {
                     this.setStateHelper(
                         st => {
                             st.editorDataToken = d;
-                        }, 
+                        },
                         () => {
                             accept(d);
                         });
@@ -570,7 +571,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                                 title: "TOKEN_NOT_AVAILABLE",
                                 message: "Token Untuk edit tidak bisa di request(error : ) + " + exc.message + ",data tidak bisa di simpan kembali. silakan di ulangi kembali"
                             }];
-                        }, 
+                        },
                         () => {
                             reject(exc);
                         });
@@ -588,11 +589,11 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
             url += "?objectId=" + objectId;
         }
         self.ajaxUtils.sendAjaxGet(
-            url, 
+            url,
             a => {
                 let tkn: any = a;
                 onSuccess(tkn);
-            } , 
+            },
             onFailure);
     }
 
@@ -602,96 +603,99 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
      * @param data 
      * @param targetState 
      */
-    handlerForEditOrViewData ( parameter: {
+    handlerForEditOrViewData(parameter: {
         /**
          * state dari editor
          */
-        editorState: 'add' |'edit'|'delete'|'view' ; 
+        editorState: 'add' | 'edit' | 'delete' | 'view';
         /**
          * data untuk edi edit
          */
-        data: DATA  ;  
+        data: DATA;
         /**
          * state tempat menaruh data
          */
-        targetState ?: STATE  ;
+        targetState?: STATE;
 
         /**
          * default = false, ini untuk menandai apakah tidak perlu request lookup atau tidak
          */
-        doNotRequestLookup ?: boolean ; 
+        doNotRequestLookup?: boolean;
     }) {
-        let { targetState , doNotRequestLookup  , data , editorState } = parameter ; 
-        if ( isNull(targetState)) {
-            this.setStateHelper( st => {
-                parameter.targetState = st ; 
-                this.handlerForEditOrViewData( parameter ) ; 
-            }) ; 
-            return ; 
+        let { targetState, doNotRequestLookup, data, editorState } = parameter;
+        if (isNull(targetState)) {
+            this.setStateHelper(st => {
+                parameter.targetState = st;
+                this.handlerForEditOrViewData(parameter);
+            });
+            return;
         }
-        if ( isNull(doNotRequestLookup) || !doNotRequestLookup) {
+        if (isNull(doNotRequestLookup) || !doNotRequestLookup) {
             this.requestLookupReload();
         }
-        targetState!.currentEditedData = data ;
-        targetState!.editorState = editorState; 
+        targetState!.currentEditedData = data;
+        targetState!.editorState = editorState;
     }
     /**
      * view data detail
      * @param data data untuk di view
      * @param doNotRequestLookup default = false . ini untuk menandai untuk tidak 
      */
-    viewDataWithSpecifiedData ( parameter: {
+    viewDataWithSpecifiedData(parameter: {
         /**
          * data untuk di view
          */
-        data: DATA ;  
+        data: DATA;
         /**
          * flag untuk tidak me-load lookup
          */
-        doNotRequestLookup ?: boolean ,
+        doNotRequestLookup?: boolean,
         /**
          * task tambahan dalam viewDataWithSpecifiedData. di trigger pada saat update state
          */
-        viewDataWithSpecifiedDataAdditionalTask: (data: DATA , targetState: STATE )  => any }    ): Promise<any> {
-        return new Promise<any>(  ( accept: (n: any ) => any, reject: (n: any ) => any ) => {
-            let { data , doNotRequestLookup } = parameter ; 
-            doNotRequestLookup = doNotRequestLookup || false ;  
+        viewDataWithSpecifiedDataAdditionalTask: (data: DATA, targetState: STATE) => any
+    }): Promise<any> {
+        return new Promise<any>((accept: (n: any) => any, reject: (n: any) => any) => {
+            let { data, doNotRequestLookup } = parameter;
+            doNotRequestLookup = doNotRequestLookup || false;
             let completeTask: any = () => {
-                this.setStateHelper( 
-                st => {
-                    st.editorState = 'view' ; 
-                    st.currentEditedData = data ; 
-                    st.bannerMessages = [] ; 
-                    if ( !isNull ( parameter.viewDataWithSpecifiedDataAdditionalTask )) {
-                        parameter.viewDataWithSpecifiedDataAdditionalTask(data , st) ; 
-                    } 
-                }, 
-                () => {
-                    this.applyDataToControls(data);
-                    accept({});
-                }); 
+                this.setStateHelper(
+                    st => {
+                        st.editorState = 'view';
+                        st.currentEditedData = data;
+                        st.bannerMessages = [];
+                        if (!isNull(parameter.viewDataWithSpecifiedDataAdditionalTask)) {
+                            parameter.viewDataWithSpecifiedDataAdditionalTask(data, st);
+                        }
+                    },
+                    () => {
+                        this.applyDataToControls(data);
+                        accept({});
+                    });
             };
-            if ( !doNotRequestLookup && !this.lovRequested) {
+            if (!doNotRequestLookup && !this.lovRequested) {
                 this.requestLookupReloadWithPromise()
-                    .then( d => {
-                        completeTask() ;
-                    }).catch(reject) ;
+                    .then(d => {
+                        completeTask();
+                    }).catch(reject);
             } else {
-                completeTask(); 
+                completeTask();
             }
-            
-        }); 
+
+        });
     }
 
-    requestDataForEdit(dataID: ID, editorState: string, additionalEditTasks: AdditionalEditorTask<DATA>[], onDataNotFoundHandler: (notFoundFlag: boolean) => any): Promise<any> {
-        let sNull: any = null ;
-        return new Promise<any>( (accept: any, reject: any) => {
+    requestDataForEditOld(dataID: ID, editorState: string, additionalEditTasks: AdditionalEditorTask<DATA>[], onDataNotFoundHandler: (notFoundFlag: boolean) => any): Promise<any> {
+        let sNull: any = null;
+        return new Promise<any>(async (accept: (n: any) => any , reject: (exc: any) => any  ) => {
             if (this.state.editorState !== 'none') {
                 this.setStateHelper(st => { st.editorState = 'none'; });
             }
             let sw: any = editorState;
             // handler kalau data sudah di terima. ini untuk update state
             let proccesorEditData: (targetSate: STATE, editData: CommonCommunicationData.EditDataWrapper<DATA>) => any = (targetSate: STATE, editData: CommonCommunicationData.EditDataWrapper<DATA>) => {
+                this.processReceivedLookupData(targetSate, editData.lookups!);
+                /*
                 let lookups: CommonCommunicationData.LookupRequestResultWrapper[] = editData.lookups!;
                 if (!isNull(lookups)) {
                     // update cache local
@@ -701,7 +705,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                     }
                     ObjectUtils.copyField(updatedCached, targetSate.lookups);
                     this.additionalTaskOnLookupRecieved(targetSate, targetSate.lookups!);
-                }
+                }*/
                 targetSate.editorState = editorState;
                 targetSate.currentEditedData = editData.editedData!;
                 targetSate.editorDataToken = editData.editDataToken;
@@ -720,7 +724,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                     salin => {
                         proccesorEditData(salin, editData);
                         return salin;
-                    }, 
+                    },
                     () => {
                         this.applyDataToControls(editData.editedData!);
                         for (var xxEdit of additionalEditTasks) {
@@ -729,7 +733,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                         accept({});
                     });
             };
-            let rejectWrapper: (exc: any ) => any = (exc: any ) => {
+            let rejectWrapper: (exc: any) => any = (exc: any) => {
                 console.error('[CoreBaseDirectDbDrivenEditorPanel#requestDataForEdit] gagal memproses edit data, error : ', exc);
                 // let errorCode: string = exc.errorCode;
                 // let errorMessage: string = exc.message;
@@ -739,16 +743,16 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                         salin.editorState = sw;
                         salin.currentEditedData = empty;
                         return salin;
-                    }, 
+                    },
                     () => {
-                    if (additionalEditTasks != null) {
-                        for (var tsk of additionalEditTasks) {
-                            tsk(sNull);
+                        if (additionalEditTasks != null) {
+                            for (var tsk of additionalEditTasks) {
+                                tsk(sNull);
+                            }
                         }
-                    }
-                    onDataNotFoundHandler(true);
-                    reject(exc);
-                });
+                        onDataNotFoundHandler(true);
+                        reject(exc);
+                    });
             };
 
             let url: string = this.generateGetDataUrl(this.getModelName(), dataID);
@@ -761,24 +765,28 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
             }
             if (this.lovRequested || this.lookupManager.getLookupIds().length === 0) { // kalau lookup sudah di request
                 console.log("[CoreBaseDirectDbDrivenEditorPanel] lovRequested :  ", this.lovRequested, " lookup size : ", this.lookupManager.getLookupIds().length, ".edit tanpa data lookup di kirim ke server");
-                this.ajaxUtils.get(url)
+                /*this.ajaxUtils.get(url)
                     .then( (noLovRequest: CommonCommunicationData.EditDataWrapper<DATA>) => {
                         editDataAcceptedHandler(noLovRequest);
                     })
                     .catch(reject);
+                */
+                this.requestDataForEditViaAjaxWorker({ id: dataID, editorState: editorState as any, lookupRequestParams: null! })
+                    .then((withLovReq: CommonCommunicationData.EditDataWrapper<DATA>) => editDataAcceptedHandler(withLovReq))
+                    .catch(rejectWrapper);
                 return;
             } else {
                 this.lovRequested = true;
                 this.lookupManager.loadFromCache(this.lookupManager.getLookupIds())
-                    .then( (  lookupCached: { [id: string]: CommonCommunicationData.CommonLookupValue[] }) => {
+                    .then((lookupCached: { [id: string]: CommonCommunicationData.CommonLookupValue[] }) => {
                         if (!isNull(lookupCached)) {
                             this.setStateHelper(st => {
                                 ObjectUtils.copyField(lookupCached, st.lookups);
                             });
                         }
                         this.lookupManager.loadFromCacheAndGenerateLookupRequestUsingPromiseAlias()
-                            .then( (lookupReqs: CommonCommunicationData.LookupRequestData[]) => {
-                                lookupReqs = lookupReqs || null;
+                            .then((lookupReqs: CommonCommunicationData.LookupRequestData[]) => {
+                                /*lookupReqs = lookupReqs || null;
                                 if (lookupReqs == null || lookupReqs.length === 0) {
                                     this.ajaxUtils.get(url).then( (a: CommonCommunicationData.EditDataWrapper<DATA>) => {
                                         editDataAcceptedHandler(a);
@@ -790,9 +798,12 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                                 this.ajaxUtils.get(url).then( (withLovReq: CommonCommunicationData.EditDataWrapper<DATA>) => {
                                     editDataAcceptedHandler(withLovReq);
                                 } ).catch(rejectWrapper );
-                                
+                              */
+                                this.requestDataForEditViaAjaxWorker({ id: dataID, editorState: editorState as any, lookupRequestParams: lookupReqs })
+                                    .then((withLovReq: CommonCommunicationData.EditDataWrapper<DATA>) => editDataAcceptedHandler(withLovReq))
+                                    .catch(rejectWrapper);
                             })
-                            .catch(rejectWrapper );
+                            .catch(rejectWrapper);
                     })
                     .catch(rejectWrapper);
                 return;
@@ -801,6 +812,52 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
 
     }
 
+    requestDataForEdit(dataID: ID, editorState: string, additionalEditTasks: AdditionalEditorTask<DATA>[], onDataNotFoundHandler: (notFoundFlag: boolean) => any): Promise<any> { 
+        return new Promise<any>(async (accept: (n: any) => any , reject: (exc: any) => any  ) => {
+            
+            let lookupReqs: CommonCommunicationData.LookupRequestData[] = null! ; 
+            if (!this.lovRequested &&  this.lookupManager.getLookupIds().length >  0) {
+                lookupReqs = await this.lookupManager.loadFromCacheAndGenerateLookupRequestUsingPromiseAlias() ; 
+            }
+            let rslt: CommonCommunicationData.EditDataWrapper<DATA> = null! ; 
+            try {
+                rslt = await this.requestDataForEditViaAjaxWorker({ id: dataID, editorState: editorState as any, lookupRequestParams: lookupReqs })
+            } catch ( exc ) {
+                let predefinedHandler: boolean = await this.onReadDataForEditError(dataID , editorState , exc ) ; 
+                if ( !predefinedHandler) {
+                    this.setStateHelper( st => {
+                        st.editorState = 'error'; 
+                        let errorCode: string = exc.errorCode ; 
+                        if ( !errorCode) {
+                            errorCode = exc.code ; 
+                        }
+                        if ( !errorCode) { // kedua nya null, untuk code, di set dengan default
+                            errorCode ='UNKNOWN_ERROR_READ_DATA' ; 
+                        }
+                        st.bannerMessages = [{
+                            type: 'error' , 
+                            title : errorCode , 
+                            message: exc.message 
+                        }] ; 
+                    } , () => {
+                        reject( exc ) ; // reject setelah di set state selesai
+                    }); 
+                } else {
+                    reject( exc ) ; 
+                }
+                return ; 
+            }
+            if ( !rslt || !rslt.editedData) {
+                let haveHandler: boolean = await this.onDataNotFound(dataID , editorState) ; 
+                if ( haveHandler) {
+                    accept({}); 
+                    return ; 
+                }
+            } 
+            await  this.editDataAcceptedHandler(dataID , editorState , rslt , additionalEditTasks) ; 
+            accept(rslt); 
+        }); 
+    }
     /**
      * valifasi dalam edit
      *   * @param editedData data yang di add, ini di validasi field nya 
@@ -842,7 +899,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                 };
                 let errHandler: (code: string, message: string, exc: any) => any = (code: string, message: string, exc: any) => {
                     CoreBaseDirectDbDrivenEditorPanel.SHOW_ERROR_MESSAGE(
-                        code, message, exc, 
+                        code, message, exc,
                         () => {
                             this.setStateHelper(
                                 st => {
@@ -851,10 +908,10 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                                         title: code,
                                         message: message
                                     });
-                                }, 
+                                },
                                 () => {
                                     this.taskAfterEraseDone(this.state.currentEditedData);
-                            });
+                                });
                         });
                 };
                 if (this.deleteAjaxMethodName === 'sendAjaxDelete') {
@@ -913,7 +970,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                     if (!isNull(this.props.afterEditTask)) {
                         this.props.afterEditTask(data);
                     }
-                }, 
+                },
                 dummyParam.closeDelay);
         } else {
             let swapClose: () => any = () => {
@@ -929,7 +986,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                     stateSalin!.bannerMessages!.push(this.taskAfterSaveAddSuccessGenerateBannerMessage(data));
                     this.taskAfterAddDone(data, stateSalin);
                     return stateSalin;
-                }, 
+                },
                 () => {
                     this.applyDataToControls(this.state.currentEditedData);
                 });
@@ -976,7 +1033,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                     slnState!.bannerMessages!.push(this.taskAfterSaveEditSuccessGenerateBannerMessage(data));
                     this.taskAfterEditDone(data, slnState);
                     return slnState;
-                }, 
+                },
                 () => {
                     this.applyDataToControls(this.state.currentEditedData);
                 });
@@ -1004,21 +1061,21 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
             this.setStateHelper(
                 st => {
                     st.bannerMessages = bnrMessages;
-                }, 
-                CoreBaseDirectDbDrivenEditorPanel.SHOW_ERROR_MESSAGE('VALIDATION_FAILED', 'Save data not allowed, some field validation is failed.', {}, () => { 
+                },
+                CoreBaseDirectDbDrivenEditorPanel.SHOW_ERROR_MESSAGE('VALIDATION_FAILED', 'Save data not allowed, some field validation is failed.', {}, () => {
                     //
                 }));
             return;
         }
 
         if (saveCallback == null || typeof saveCallback === 'undefined') {
-            saveCallback = (data: DATA) => { 
+            saveCallback = (data: DATA) => {
                 //
                 console.warn('Save callback masih memakai bawaan, tidak ada handler sama sekali');
             };
         }
         if (errorCallback == null || typeof errorCallback === 'undefined') {
-            errorCallback = (code: string, message: string, exc: any) => { 
+            errorCallback = (code: string, message: string, exc: any) => {
                 //
                 console.warn('error callback blm di handle. masih mempergunakan default');
             };
@@ -1027,14 +1084,14 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
             st1 => {
                 st1.bannerMessages = [];
                 st1.editingModeEnabled = false;
-            }, 
+            },
             () => {
                 this.fetchDataFromControls(this.state.currentEditedData);
                 let bnrContainer: any[] = [];
                 if (!this.validateEditData(this.state.currentEditedData, bnrContainer)) {
                     this.setStateHelper(st2 => {
                         st2.bannerMessages = bnrContainer;
-                        st2.editingModeEnabled = true  ; 
+                        st2.editingModeEnabled = true;
                     });
                     return;
                 }
@@ -1046,7 +1103,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                         this.setStateHelper(
                             st2 => {
                                 ObjectUtils.copyField(dbData, st2.currentEditedData);
-                            }, 
+                            },
                             () => {
                                 saveCallback!(dbData);
                                 this.taskAfterSaveAddSuccess(dbData);
@@ -1056,7 +1113,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                                     () => {
                                         //
                                     });
-                                if ( !isNull(this.props.taskAfterDataSaved)) {
+                                if (!isNull(this.props.taskAfterDataSaved)) {
                                     this.props.taskAfterDataSaved!(dbData);
                                 }
                             });
@@ -1091,21 +1148,21 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                             st.editingModeEnabled = true;
                             st.editorDataToken = tkn;
                         });
-                    }, 
+                    },
                     (codeErrorToken: string, messageErrorToken: string, ex: any) => {
-                    console.error('[CoreBaseDirectDbDrivenEditorPanel]Gagal request token , error ==> code', code, '. message : ', messageErrorToken, '.raw error : ', ex);
-                    this.setStateHelper(st => {
-                        st.editingModeEnabled = true;
-                        if (isNull(st.bannerMessages)) {
-                            st.bannerMessages = [];
-                        }
-                        st.bannerMessages!.push({
-                            type: 'error',
-                            title: "TOKEN_NOT_AVAILABLE",
-                            message: "Token Untuk edit tidak bisa di request(error : ) + " + messageErrorToken + ",data tidak bisa di simpan kembali. silakan di ulangi kembali"
+                        console.error('[CoreBaseDirectDbDrivenEditorPanel]Gagal request token , error ==> code', code, '. message : ', messageErrorToken, '.raw error : ', ex);
+                        this.setStateHelper(st => {
+                            st.editingModeEnabled = true;
+                            if (isNull(st.bannerMessages)) {
+                                st.bannerMessages = [];
+                            }
+                            st.bannerMessages!.push({
+                                type: 'error',
+                                title: "TOKEN_NOT_AVAILABLE",
+                                message: "Token Untuk edit tidak bisa di request(error : ) + " + messageErrorToken + ",data tidak bisa di simpan kembali. silakan di ulangi kembali"
+                            });
                         });
                     });
-                });
 
             }
         });
@@ -1142,17 +1199,17 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
     }
     __saveEditWorker(saveCallback: (data: DATA) => any, errorCallback: (code: string, message: string, exc: any) => any): Promise<any> {
         // let sNull: any = null ;
-        return new Promise<any>( (accept: any, reject: any) => {
+        return new Promise<any>((accept: any, reject: any) => {
             let param: any = this.generateSaveUpdateParam();
             param.token = this.state.editorDataToken;
             let saveUrl: string = this.generateUpdateDataUrl();
             // let dbData: DATA = sNull;
             this.ajaxUtils.put(saveUrl, param)
-                .then( (dbDataAfterPut: DATA) => {
+                .then((dbDataAfterPut: DATA) => {
                     saveCallback(dbDataAfterPut);
                     this.taskAfterSaveEditSuccess(dbDataAfterPut);
                     accept(dbDataAfterPut);
-                    if ( !isNull(this.props.taskAfterDataSaved)) {
+                    if (!isNull(this.props.taskAfterDataSaved)) {
                         this.props.taskAfterDataSaved!(dbDataAfterPut);
                     }
                 })
@@ -1169,11 +1226,11 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                         });
                     });
                     if (code !== "INVALID_TOKEN") {
-                        this.requestEditDataTokenFacade(this.getDataIdAsString(this.state.currentEditedData)).then(d => { 
+                        this.requestEditDataTokenFacade(this.getDataIdAsString(this.state.currentEditedData)).then(d => {
                             //
-                        }).catch(excInvalidToken => { 
+                        }).catch(excInvalidToken => {
                             //
-                            console.error('Error invalid token detail : ' , excInvalidToken);
+                            console.error('Error invalid token detail : ', excInvalidToken);
                         });
                     }
                     reject(exc);
@@ -1202,20 +1259,20 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
             this.setStateHelper(
                 st => {
                     st.bannerMessages = bnrMessages;
-                }, 
-                CoreBaseDirectDbDrivenEditorPanel.SHOW_ERROR_MESSAGE('VALIDATION_FAILED', 'Save data not allowed, some field validation is failed.', {}, () => { 
+                },
+                CoreBaseDirectDbDrivenEditorPanel.SHOW_ERROR_MESSAGE('VALIDATION_FAILED', 'Save data not allowed, some field validation is failed.', {}, () => {
                     //
                 }));
             return;
         }
 
         if (saveCallback == null || typeof saveCallback !== 'undefined') {
-            saveCallback = (data: DATA) => { 
+            saveCallback = (data: DATA) => {
                 //
             };
         }
         if (errorCallback == null || typeof errorCallback !== 'undefined') {
-            errorCallback = (code: string, message: string, exc: any) => { 
+            errorCallback = (code: string, message: string, exc: any) => {
                 //
             };
         }
@@ -1262,5 +1319,105 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
     getDateFields(): string[] {
         return [];
     }
+    /**
+     * request data dari ajax. kalau perlu dedicated ajax request, bisa dengan ini
+     */
+    protected requestDataForEditViaAjaxWorker(parameter: {
+        /**
+         * id dari data untuk di request
+         */
+        id: ID;
+        /**
+         * mode editor pada saat request.misal kalau edit + delete berarti akan menyertakan token
+         */
+        editorState: 'edit' | 'delete' | 'view';
+        /**
+         * lookup 
+         */
+        lookupRequestParams: CommonCommunicationData.LookupRequestData[]
+    }): Promise<CommonCommunicationData.EditDataWrapper<DATA>> {
+        let { id, editorState, lookupRequestParams } = parameter;
+        let url: string = this.generateGetDataUrl(this.getModelName(), id);
+        let incs: CommonCommunicationData.IncludeModelParam[] = this.getIncludeModels() || null;
+        if (incs != null && incs.length > 0) {
+            url += "&includedModels=" + btoa(JSON.stringify(incs));
+        }
+        if (editorState === "view") {
+            url = url + "&includeToken=N";
+        } else {
+            url = url + "&includeToken=Y";
+        }
+        if (lookupRequestParams && lookupRequestParams.length > 0) {
+            url = url + "&lookupFields=" + btoa(JSON.stringify(lookupRequestParams))
+        }
+        return this.ajaxUtils.get(url) as any;
+
+    }
+    /**
+     * worker untuk memproses data lookup. ini untuk update lookup dalam state container, misal kalau ada update dari server untuk data lookup
+     * @param targetState state target update, ini di dapat dari setStateHelper
+     * @param lookups data update lookups
+     */
+    protected processReceivedLookupData: (targetState: STATE, lookups: CommonCommunicationData.LookupRequestResultWrapper[]) => any = (targetState: STATE, lookups: CommonCommunicationData.LookupRequestResultWrapper[]) => {
+        if (!lookups || lookups.length === 0) {
+            return;
+        }
+        let updatedCached: { [id: string]: CommonCommunicationData.CommonLookupValue[] } = this.lookupManager.processLookupRequestResult(lookups);
+        if (!targetState.lookups) {
+            targetState.lookups = {};
+        }
+        ObjectUtils.copyField(updatedCached, targetState.lookups);
+        this.additionalTaskOnLookupRecieved(targetState, targetState.lookups!);
+    };
+
+    /**
+     * handler kalau data di terima
+     * @param editData data untuk editor
+     * @param additionalEditTasks task after edit
+     */
+    protected editDataAcceptedHandler(dataID: ID, editorState: string, editData: CommonCommunicationData.EditDataWrapper<DATA>, additionalEditTasks: AdditionalEditorTask<DATA>[]): Promise<any> {
+        return new Promise<any>((accept: (n: any) => any, reject: (n: any) => any) => {
+            this.setStateHelper(
+                targetSate => {
+                    targetSate.editorState = editorState;
+                    targetSate.id = dataID;
+                    if(editData){
+                        this.processReceivedLookupData(targetSate, editData.lookups!);
+                        targetSate.currentEditedData = editData.editedData!;
+                        targetSate.editorDataToken = editData.editDataToken;
+                    }
+                    
+                },
+                () => {
+                    let dt: any = editData ? editData.editedData! : null ; 
+                    this.applyDataToControls(dt);
+                    for (var xxEdit of additionalEditTasks) {
+                        xxEdit(dt);
+                    }
+                    accept({});
+                });
+        });
+
+    };
+    /**
+     * handler kalau data tidak di temukan. kalau misal return false , berarti akan di run default pada saat data not found
+     * @param dataID 
+     * @param editorState 
+     */
+    protected onDataNotFound(dataID: ID, editorState: string): Promise<boolean>{
+        return Promise.resolve(false) ;
+    }
+
+    /**
+     * handler kalau read data ada error di server
+     * @param dataID id dari data yang di request
+     * @param editorState state dari edit yang di request
+     * @param exception raw exception, error dalam baca data
+     * @return false kalau tidak di handle sama sekali oleh handler, artinya built in akan di panggil
+     */
+    protected onReadDataForEditError( dataID: ID, editorState: string, exception: any  ): Promise<boolean> {
+        return Promise.resolve(false) ;
+    }
+
 
 }

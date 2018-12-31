@@ -10,6 +10,9 @@ export interface BaseComponentState {}
 export abstract class BaseComponent<PROPS extends BaseComponentProps , STATE extends BaseComponentState> extends React.Component<PROPS , STATE> {
     protected anyObjectCache: {[id: string]: any } = {} ; 
 
+    constructor(props: PROPS) {
+        super(props) ; 
+    }
     /**
      * menaruh variable dalam cache. ini rencana di pakai untuk handler element, click tap dsb
      * @param key key dari object
@@ -69,7 +72,10 @@ export abstract class BaseComponent<PROPS extends BaseComponentProps , STATE ext
                     destVal = readNested(comparedStateOrProp , f) ; 
                 }
                 if ( Array.isArray(srcVal) || Array.isArray(destVal)) {
-                    return !ObjectUtils.compareFieldsArray( srcVal , destVal , []) ; 
+                    let rtvl: boolean =  !ObjectUtils.compareFieldsArray( srcVal , destVal , []) ; 
+                    if ( rtvl) {
+                        return true ; 
+                    }
                 }
                 if ( srcVal !== destVal) {
                     return true ; 
