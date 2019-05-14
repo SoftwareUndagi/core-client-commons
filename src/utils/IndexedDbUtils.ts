@@ -1,4 +1,4 @@
-import { isNull } from './CommonUtils';
+
 /**
  * parameter untuk insertToDatabase
  * 
@@ -94,7 +94,7 @@ export class IndexedDbUtils {
      */
     static deleteDataById ( param: IndexeddbUtilDeleteDataByIdParam ): Promise<any|Array<any>> {
         return new Promise< any|Array<any> >(  (accept: (n: any|Array<any> ) => any  , reject: (exc: any ) => any   ) => {
-            if ( isNull(param.id) || ( Array.isArray(param.id) && param.id.length === 0  )) {
+            if (!param.id || ( Array.isArray(param.id) && param.id.length === 0  )) {
                 accept(null); 
                 return ; 
             }
@@ -146,7 +146,7 @@ export class IndexedDbUtils {
      */
     static readById ( param: ReadByIdParameter ): Promise<any> {
         return new Promise<any>( (accept: (n: any) => any, reject: (exc: any) => any) => {
-            if (isNull(param.id) ) {
+            if (!param.id ) {
                 accept(null);
                 return;
             }
@@ -195,7 +195,7 @@ export class IndexedDbUtils {
             for ( let id of ids) {
                 IndexedDbUtils.readByIdWorker( store , id)
                     .then( d1 => {
-                        if ( !isNull(d1) && d1.length > 0) {
+                        if ( !!d1 && d1.length > 0) {
                             rtvl.push(d1);
                         }
                         respondingCount++; 
@@ -216,7 +216,7 @@ export class IndexedDbUtils {
      */
     static readByIds (param: ReadByIdsParameter ): Promise< Array<any>> { 
         return new Promise<any>( (accept: (n: any) => any, reject: (exc: any) => any) => {
-            if (isNull(param.ids) ) {
+            if (!param.ids ) {
                 accept([]);
                 return;
             }
@@ -241,7 +241,7 @@ export class IndexedDbUtils {
      */
     static insertToDatabase(param: InsertToDatabaseParameter): Promise<any> {
         return new Promise<any>( (accept: (n: any) => any, reject: (exc: any) => any) => {
-            if (isNull(param.data) || (Array.isArray(param.data) && param.data.length === 0)) {
+            if (!param.data || (Array.isArray(param.data) && param.data.length === 0)) {
                 accept({});
                 return;
             }

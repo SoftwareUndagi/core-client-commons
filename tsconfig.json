@@ -12,7 +12,7 @@
         "allowJs": false,
         "jsx": "react",
         "moduleResolution": "node",
-        "rootDir": "core-client-commons",
+        "rootDir": "src",
         "forceConsistentCasingInFileNames": true,
         "noImplicitReturns": true,
         "noImplicitThis": true,

@@ -1,6 +1,55 @@
-import { isNull } from '../../utils/CommonUtils';
+
+import { isNull } from 'base-commons-module';
 import { CommonCommunicationData } from '../../shared/index';
-import { MoficationDataResultContainer } from './MoficationDataResultContainer'; 
+/**
+ * container data sisi client
+ */
+export namespace editorsupport {
+/**
+ * interface untuk editor sub panel
+ */
+export interface EditorSubPanelHandler<DATA> {
+    /**
+     * task tambahan dalam proses delete data
+     */
+    additionalTaskOnDelete(data: DATA): void ;
+    /**
+     * task tambahan pada saat init edit data
+     */
+    additionalTaskOnEdit(data: DATA): void ;
+    /**
+     * task tambahan dalam proses add new data
+     */
+    additionalTaskOnAdd(data: DATA): void ;
+    /**
+     * task tambahan dalam proses view
+     */
+    additionalTaskOnView(data: DATA): void ;
+}
+/**
+ * untuk detach event
+ */
+export interface UnregisterChangeHandlerWorker {
+    (): any;
+}
+/**
+ * container modifikasi data
+ */
+export interface MoficationDataResultContainer<DATA> {
+    /**
+     * item-item yang baru di buat
+     */
+    addedItems?: DATA[];
+    /**
+     * item2 yang di hapus
+     */
+    erasedItems?: DATA[];
+    /**
+     * item yang di modif
+     */
+    modifiedItems?: DATA[];
+}
+
 /**
  * container client side edit data 
  */
@@ -11,19 +60,18 @@ export class ClientSideEditorContainer<DATA> {
     private _modifiedsData: DATA[] = [];
 
     private _listeners: any[] = [];
+
     /**
      * data dari db/server
      */
     private _initData: any[] = [];
-    /**
-     * 
-     * @param sorter kalau di perlukan sorter data. sorter untuk sort data dalam array js. misal di sort berdasarkan category etc, anda perlu menyediakan sorter
-     */
-    constructor(private sorter?: (a: DATA, b: DATA) => number) {}
-    
+
+    constructor(private sorter?: (a: DATA, b: DATA) => number) {
+
+    }
     initiatePopulateData(initialData: DATA[]) {
         if (initialData == null || typeof initialData === "undefined") {
-            initialData = [];
+           initialData = [];
         }
         this._allStillExistData = initialData;
         this._initData = [];
@@ -31,8 +79,8 @@ export class ClientSideEditorContainer<DATA> {
             this._initData.push(...initialData);
         }
         this.propagateChange();
-
     }
+
     /**
      * count data yang masih ada
      */
@@ -51,7 +99,7 @@ export class ClientSideEditorContainer<DATA> {
         }
         return this._newCreatedData.length;
     }
-    
+
     /**
      * count data yang di edit
      */
@@ -61,7 +109,6 @@ export class ClientSideEditorContainer<DATA> {
         }
         return this._modifiedsData.length;
     }
-
     /**
      * count data yang di hapus
      */
@@ -83,7 +130,7 @@ export class ClientSideEditorContainer<DATA> {
     /**
      * register change handler
      */
-    registerChangeHandler(changeHandler: () => any): () => any {
+    registerChangeHandler(changeHandler: () => any): UnregisterChangeHandlerWorker {
         this._listeners.push(changeHandler);
         return () => {
             let idx: number = this._listeners.indexOf(changeHandler);
@@ -101,14 +148,12 @@ export class ClientSideEditorContainer<DATA> {
             this._listeners.splice(this._listeners.indexOf(changeHandler));
         }
     }
-
     /**
      * semua data yang masih ada dalam data
      */
     getAllStillExistData(): DATA[] {
         return this._allStillExistData;
     }
-
     /**
      * data modifikasi
      */
@@ -117,7 +162,7 @@ export class ClientSideEditorContainer<DATA> {
             addedItems: this._newCreatedData,
             erasedItems: this._erasedData,
             modifiedItems: this._modifiedsData
-        };
+       };
     }
     /**
      * generate bulk edit data untuk di kirim ke server
@@ -129,7 +174,7 @@ export class ClientSideEditorContainer<DATA> {
         added.push(...this._newCreatedData);
         edited.push(...this._modifiedsData);
         let rtvl: CommonCommunicationData.BulkDataModificationContainer<DATA, any> = {
-            appendedItems: added,
+        appendedItems: added,
             modifiedItems: edited,
             erasedItems: []
         };
@@ -174,20 +219,21 @@ export class ClientSideEditorContainer<DATA> {
             this.propagateChange();
         }
     }
-
     /**
      * edit data
      */
     editData(data: DATA, doNotUpdate?: boolean) {
         var self: ClientSideEditorContainer<DATA> = this;
         var idxOnNew: number = this.findOnArray(data, this._newCreatedData);
-        if (!(idxOnNew >= 0)) {
+        if (idxOnNew >= 0) {
+            //
+        } else {
             var idxOnEdit: number = this.findOnArray(data, this._modifiedsData);
             var idxOnExistData: number = this.findOnArray(data, this._initData);
             if (idxOnExistData >= 0 && idxOnEdit === -1) {
                 this._modifiedsData.push(data);
             }
-        } 
+        }
         if (isNull(doNotUpdate) || !doNotUpdate) {
             self.propagateChange();
         }
@@ -197,18 +243,16 @@ export class ClientSideEditorContainer<DATA> {
      * hapus data
      */
     deleteData(data: DATA, doNotUpdate?: boolean) {
-        var self: ClientSideEditorContainer<DATA> = this;
+        let self: ClientSideEditorContainer<DATA> = this;
         let eraseIndex: number = this.findOnArray(data, this._allStillExistData);
         var idxExist: number = this.findOnArray(data, this._initData);
         this.removeFromArray(eraseIndex, this._allStillExistData);
-
         if (idxExist >= 0) {
             this._erasedData.push(data);
         }
         if (isNull(doNotUpdate) || !doNotUpdate) {
             self.propagateChange();
         }
-
     }
 
     /**
@@ -217,10 +261,10 @@ export class ClientSideEditorContainer<DATA> {
     fireChangeEvent() {
         setTimeout(
             () => {
-                for (var x of this._listeners) {
-                    x();
-                }
-            }, 
+              for (var x of this._listeners) {
+                  x();
+              }
+            } , 
             100);
     }
 
@@ -250,6 +294,7 @@ export class ClientSideEditorContainer<DATA> {
         }
         theArray.splice(index, 1);
     }
+
     /**
      * propagasi perubahan data ke listener
      */
@@ -258,10 +303,10 @@ export class ClientSideEditorContainer<DATA> {
         setTimeout( 
             () => {
                 for (var x of self._listeners) {
-                    x();
+                  x();
                 }
             }, 
             100);
-
-    }
-}	
+   }
+}
+}

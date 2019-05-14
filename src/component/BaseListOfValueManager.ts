@@ -1,4 +1,5 @@
-import { CoreAjaxHelper , isNull } from '../utils/index' ; 
+import { isNull } from 'base-commons-module'
+import { CoreAjaxHelper  } from '../utils/index' ; 
 import { LOVEnabledComponent , ListOfValueManager , LoadLookupFromCacheDataWrapper , CachedLookupDefinition } from './ListOfValueManager'; 
 import { CommonCommunicationData , LookupWithTokenResponse , LookupWithToken } from '../shared/index'; 
 /**
@@ -196,7 +197,7 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
                 ids = [];
             }
             let registeredComponentIds: string[] = Object.keys(this.indexedLovComponents);
-            if (registeredComponentIds == null || typeof registeredComponentIds === 'undefined') {
+            if (registeredComponentIds ) {
                 for (let rComp of registeredComponentIds) {
                     if (ids.indexOf(rComp) < 0) {
                         ids.push(rComp);

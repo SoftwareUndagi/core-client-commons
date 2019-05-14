@@ -1,9 +1,9 @@
-import { isNull } from '../../utils/index';
-import { CommonCommunicationData    } from '../../shared/index';
-import { ListOfValueManager } from '../ListOfValueManager' ; 
-import { EditorInputElement } from './CommonsInputElement';
+import { isNull } from 'base-commons-module';
+import { CommonCommunicationData } from '../../shared/index';
 import { BaseComponent } from '../BaseComponent';
-import { editorsupport } from './editorsupport'; 
+import { ListOfValueManager } from '../ListOfValueManager';
+import { EditorInputElement } from './CommonsInputElement';
+import { editorsupport } from './editorsupport';
 export interface CoreBaseEditorSegmentPanelProps <DATA> {
 
     /**

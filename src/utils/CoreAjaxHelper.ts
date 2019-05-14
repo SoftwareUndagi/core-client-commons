@@ -1,5 +1,5 @@
 
-import { isNull } from './CommonUtils'; 
+
 /**
  * wrapepr fetch API
  */
@@ -28,7 +28,7 @@ export class CoreAjaxHelper {
         if (serviceUrl.startsWith("//")) {
             serviceUrl = serviceUrl.substr(1);
         }
-        if (isNull(this.baseUrl) || this.baseUrl.length === 0) {
+        if (!this.baseUrl || this.baseUrl.length === 0) {
             return serviceUrl;
         }
         let rtvl = this.baseUrl;
@@ -70,7 +70,7 @@ export class CoreAjaxHelper {
      * }
      */
     get(url: string): Promise<any> {
-        if (!isNull(this.baseUrl) && this.baseUrl.length > 0) {
+        if (!!this.baseUrl && this.baseUrl.length > 0) {
             url = this.baseUrl + url;
         }
         return new Promise<any>((accept: (d: any) => any, reject: (exc: any) => any) => {
@@ -125,7 +125,7 @@ export class CoreAjaxHelper {
      * @param header untuk fetch request
      */
     rawPost(url: string, formData: FormData, header?: any): Promise<any> {
-        if (!isNull(this.baseUrl) && this.baseUrl.length > 0) {
+        if (!!this.baseUrl && this.baseUrl.length > 0) {
             url = this.baseUrl + url;
         }
         return fetch(url, {
@@ -142,7 +142,7 @@ export class CoreAjaxHelper {
      * worker untuk invoke post 
      */
     post(url: string, postParam: any): Promise<any> {
-        if (!isNull(this.baseUrl) && this.baseUrl.length > 0) {
+        if (!!this.baseUrl && this.baseUrl.length > 0) {
             url = this.baseUrl + url;
         }
         return new Promise<any>((accept: (d: any) => any, reject: (exc: any) => any) => {
@@ -181,7 +181,7 @@ export class CoreAjaxHelper {
      * invoke method : put
      */
     put(url: string, param?: any): Promise<any> {
-        if (!isNull(this.baseUrl) && this.baseUrl.length > 0) {
+        if (!!this.baseUrl && this.baseUrl.length > 0) {
             url = this.baseUrl + url;
         }
         return new Promise<any>((accept: (d: any) => any, reject: (exc: any) => any) => {
@@ -219,7 +219,7 @@ export class CoreAjaxHelper {
      * http delete. disingkat agar tidak bentrok dengan statement delete
      */
     del(url: string): Promise<any> {
-        if (!isNull(this.baseUrl) && this.baseUrl.length > 0) {
+        if (!!this.baseUrl && this.baseUrl.length > 0) {
             url = this.baseUrl + url;
         }
         return new Promise<any>((accept: (d: any) => any, reject: (exc: any) => any) => {

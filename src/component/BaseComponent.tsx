@@ -1,5 +1,5 @@
 import * as React from "react" ;
-import { isNull , cloneObject , readNested , ObjectUtils  } from '../utils/index';
+import { isNull , cloneObject , readNested , ObjectUtils  } from 'base-commons-module';
 
 export interface BaseComponentProps {} 
 export interface BaseComponentState {} 
