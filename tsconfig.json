@@ -20,7 +20,8 @@
         "suppressImplicitAnyIndexErrors": true,
         "noUnusedLocals": true,
         "outDir": "./build/lib",
-        "declaration": false
+        "declarationDir": "./build/types",
+        "declaration": true
         
     }, 
     "include": [

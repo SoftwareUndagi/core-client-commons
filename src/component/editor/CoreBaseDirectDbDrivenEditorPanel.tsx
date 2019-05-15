@@ -479,7 +479,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                         }).then(completionTaskAndDoAccept) ;
                 }).catch(reject);
             } else {
-                this.requestEditDataTokenWithPromise(s).then(token => {
+                this.requestEditDataToken(s).then(token => {
                     this.setStateHelper(
                         sln => {
                             sln.editorDataToken = token;
@@ -504,7 +504,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
         if (['edit', 'delete'].indexOf(this.state.editorState) >= 0) {
             id = this.getDataIdAsString(this.state.currentEditedData);
         }
-        this.requestEditDataTokenWithPromise(id)
+        this.requestEditDataToken(id)
             .then(d => {
                 this.setStateHelper(sln => {
                     sln.editorDataToken = d;
@@ -519,7 +519,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
     /**
      * request token edit dari server. kalau erorr code bukan
      */
-    requestEditDataTokenWithPromise(objectId: string): Promise<string> {
+    requestEditDataToken(objectId: string): Promise<string> {
         return new Promise<string>((accept: (n: string) => any, reject: (exc: any) => any) => {
             let url: string = "/dynamics/rest-api/generic/" + this.getModelName() + "/double-submit-token-generator.svc";
             if (!isNull(objectId) && objectId.length > 0) {
@@ -536,7 +536,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
      */
     requestEditDataTokenFacade(objectId: string): Promise<string> {
         return new Promise<string>((accept: (n: string) => any, reject: (exc: any) => any) => {
-            this.requestEditDataTokenWithPromise(objectId)
+            this.requestEditDataToken(objectId)
                 .then(d => {
                     this.setStateHelper(
                         st => {
@@ -562,23 +562,6 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
         });
     }
 
-    /**
-     * request token edit dari server. kalau erorr code bukan
-     */
-    requestEditDataToken(onSuccess: (token: string) => any, onFailure: (code: string, message: string, actualException: any) => any, objectId?: string) {
-        let self: CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP, STATE> = this;
-        let url: string = "/dynamics/rest-api/generic/" + this.getModelName() + "/double-submit-token-generator.svc";
-        if (!isNull(objectId) && objectId!.length > 0) {
-            url += "?objectId=" + objectId;
-        }
-        self.ajaxUtils.sendAjaxGet(
-            url,
-            a => {
-                let tkn: any = a;
-                onSuccess(tkn);
-            },
-            onFailure);
-    }
 
     /**
      * handler untuk menampilkan data dalam editor. worker untuk edit, view delete. ini bisa di pergunakan untuk 
@@ -734,64 +717,57 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
     /**
      * worker untuk delete data
      */
-    saveDelete(saveCallback?: (data: DATA) => any, errorCallback?: (code: string, message: string, exc: any) => any): any {
-        this.setStateHelper(
-            st => {
-                st.bannerMessages = [];
-                st.editingModeEnabled = false;
-            },
-            () => {
-                let idDataToEdit: string = this.getDataIdAsString(this.state.currentEditedData);
-                let done: (affected: number) => any = (affected: number) => {
-                    CoreBaseDirectDbDrivenEditorPanel.SHOW_INFO_MESSAGE(
-                        'Hapus Berhasil', 'Data sukses di hapus. berikut ini adalah detail dari data',
-                        () => {
-                            this.close();
-                            if (this.props.afterEditTask != null && typeof this.props.afterEditTask !== 'undefined') {
-                                this.props.afterEditTask(this.currentEditedData);
-                            }
-
-                        });
-                };
-                let errHandler: (code: string, message: string, exc: any) => any = (code: string, message: string, exc: any) => {
-                    CoreBaseDirectDbDrivenEditorPanel.SHOW_ERROR_MESSAGE(
-                        code, message, exc,
-                        () => {
-                            this.setStateHelper(
-                                st => {
-                                    st!.bannerMessages!.push({
-                                        type: 'error',
-                                        title: code,
-                                        message: message
+    //saveCallback?: (data: DATA) => any, errorCallback?: (code: string, message: string, exc: any) => any
+    saveDelete(): Promise<DATA> {
+        return new Promise<DATA> (async ( accept: (d: DATA) => any , reject: (exc: any ) => any )=> {
+            this.setStateHelper(
+                st => {
+                    st.bannerMessages = [];
+                    st.editingModeEnabled = false;
+                },
+                () => {
+                    let idDataToEdit: string = this.getDataIdAsString(this.state.currentEditedData);
+                    let errHandler: (exc: any ) => any = (excRaw: any ) => {
+                        const code: string = excRaw.code ;  
+                        const message: string = excRaw.message 
+                        const  exc: any = excRaw; 
+                        CoreBaseDirectDbDrivenEditorPanel.SHOW_ERROR_MESSAGE(
+                            code, message, exc,
+                            () => {
+                                this.setStateHelper(
+                                    st => {
+                                        st!.bannerMessages!.push({
+                                            type: 'error',
+                                            title: code,
+                                            message: message
+                                        });
+                                    },
+                                    () => {
+                                        this.taskAfterEraseDone(this.state.currentEditedData);
                                     });
-                                },
-                                () => {
-                                    this.taskAfterEraseDone(this.state.currentEditedData);
-                                });
-                        });
-                };
-                if (this.deleteAjaxMethodName === 'sendAjaxDelete') {
-                    this.ajaxUtils.sendAjaxDelete(
-                        this.generateDeleteUrl(idDataToEdit),
-                        done, errHandler
-                    );
-                } else if (this.deleteAjaxMethodName === 'sendAjaxPost') {
-                    let delParam: any = this.generateSaveDeleteParam();
-                    delParam.token = this.state.editorDataToken;
-                    this.ajaxUtils.sendAjaxPost(
-                        this.generateDeleteUrl(idDataToEdit), delParam,
-                        done, errHandler
-                    );
-                } else if ('sendAjaxPut' === this.deleteAjaxMethodName) {
-                    let delParam: any = this.generateSaveDeleteParam();
-                    delParam.token = this.state.editorDataToken;
-                    this.ajaxUtils.sendAjaxPut(
-                        this.generateDeleteUrl(idDataToEdit), delParam,
-                        done, errHandler
-                    );
-                }
-            });
-
+                            });
+                    };
+                    if (this.deleteAjaxMethodName === 'sendAjaxDelete') {
+                        this.ajaxUtils.del(
+                            this.generateDeleteUrl(idDataToEdit)
+                        ).then(accept).catch(errHandler);
+                    } else if (this.deleteAjaxMethodName === 'sendAjaxPost') {
+                        let delParam: any = this.generateSaveDeleteParam();
+                        delParam.token = this.state.editorDataToken;
+                        this.ajaxUtils.post(
+                            this.generateDeleteUrl(idDataToEdit), delParam 
+                        ).then(accept).catch(errHandler);
+                    } else if ('sendAjaxPut' === this.deleteAjaxMethodName) {
+                        let delParam: any = this.generateSaveDeleteParam();
+                        delParam.token = this.state.editorDataToken;
+                        this.ajaxUtils.put(
+                            this.generateDeleteUrl(idDataToEdit), delParam
+                        ).then(accept).catch(errHandler);
+                    }
+                });
+    
+        }); 
+        
     }
 
     /**
@@ -998,15 +974,16 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                 });
             });
             if (code !== "INVALID_TOKEN") {
-                this.requestEditDataToken(
-                    tkn => {
-                        this.setStateHelper(st => {
-                            st.editingModeEnabled = true;
-                            st.editorDataToken = tkn;
-                        });
-                    },
-                    (codeErrorToken: string, messageErrorToken: string, ex: any) => {
-                        console.error('[CoreBaseDirectDbDrivenEditorPanel]Gagal request token , error ==> code', code, '. message : ', messageErrorToken, '.raw error : ', ex);
+                this.requestEditDataToken(null!).then( tkn => {
+                    this.setStateHelper(st => {
+                        st.editingModeEnabled = true;
+                        st.editorDataToken = tkn;
+                    });
+                }).catch( exc2 => {
+                    const codeErrorToken: string = exc2.code ;
+                    const   messageErrorToken: string = exc2.message ; 
+                    const  ex: any = exc2 ; 
+                    console.error('[CoreBaseDirectDbDrivenEditorPanel]Gagal request token , error ==> code', codeErrorToken, '. message : ', messageErrorToken, '.raw error : ', ex);
                         this.setStateHelper(st => {
                             st.editingModeEnabled = true;
                             if (isNull(st.bannerMessages)) {
@@ -1018,7 +995,9 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                                 message: "Token Untuk edit tidak bisa di request(error : ) + " + messageErrorToken + ",data tidak bisa di simpan kembali. silakan di ulangi kembali"
                             });
                         });
-                    });
+                     
+                })
+                    
 
             }
         });

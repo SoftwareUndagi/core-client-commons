@@ -2,7 +2,7 @@ import { ListOfValueManager } from './ListOfValueManager';
 import { BaseComponent ,   BaseComponentState } from './BaseComponent';
 import {  EditorInputElement , CustomValidationFailureResult } from './editor/CommonsInputElement';
 import { isNull , ObjectUtils, CommonLookupValue } from 'base-commons-module'
-import {  CoreAjaxHelper   } from '../utils/index';
+import {  CoreAjaxHelper , CoreClientUtils   } from '../utils/index';
 import { CoreBaseSubEditorPanel } from './editor/CoreBaseSubEditorPanel';
 
 /**
@@ -131,7 +131,7 @@ export abstract class BaseReactEditorPanel<DATA  , PROP , STATE extends BaseEdit
         super(props) ; 
         let self: any = this ; 
         this.keyToSelf = 'objectRef' ; 
-        this.ajaxUtils = new CoreAjaxHelper() ; 
+        this.ajaxUtils = CoreClientUtils.ajaxHelperGenerator() ; 
         this.lookupManager = this.generateLookupManager();
         let swap: STATE = this.generateDefaultState();
         if ( !isNull(swap)) {

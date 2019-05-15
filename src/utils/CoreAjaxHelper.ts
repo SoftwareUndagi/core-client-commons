@@ -1,9 +1,40 @@
 
+/**
+ * ajax helper inteface definition
+ */
+export interface CoreAjaxHelper {
+    /**
+     * invoke get. 
+     * promise : success : data , onfailure : {
+     *      message : "pesan error" , 
+     *      errorCode : "kode error", 
+     *      
+     * }
+     */
+    get(url: string): Promise<any> ; 
+    /**
+     * worker untuk invoke post 
+     */
+    post(url: string, postParam: any): Promise<any> ; 
+    /**
+     * invoke method : put
+     */
+    put(url: string, param?: any): Promise<any> ; 
+
+    /**
+     * http delete. disingkat agar tidak bentrok dengan statement delete
+     */
+    del(url: string): Promise<any>
+
+}
+
+
+ 
 
 /**
- * wrapepr fetch API
+ * wrapepr fetch API. junk for now. implementation is on each library. for example on html-client-commons
  */
-export class CoreAjaxHelper {
+export class CoreAjaxHelper1 {
     /**
      * handler kalau login sudah habis
      */
@@ -51,11 +82,11 @@ export class CoreAjaxHelper {
      * check login expired atau tidak. kalau return true , callback tidak akan di panggil, login expired langsung di trigger
      */
     doCheckLoginExpired(ajaxResult: any): boolean {
-        if (CoreAjaxHelper.LOGIN_EXPIRED_HANDLER == null || typeof CoreAjaxHelper.LOGIN_EXPIRED_HANDLER === 'undefined') {
+        if (CoreAjaxHelper1.LOGIN_EXPIRED_HANDLER == null || typeof CoreAjaxHelper1.LOGIN_EXPIRED_HANDLER === 'undefined') {
             return false;
         }
         if (ajaxResult.errorCode === 'ERROR_LOGIN_EXPIRED') {
-            CoreAjaxHelper.LOGIN_EXPIRED_HANDLER();
+            CoreAjaxHelper1.LOGIN_EXPIRED_HANDLER();
             return true;
         }
         return false;
@@ -174,7 +205,7 @@ export class CoreAjaxHelper {
     }
 
     getMode(): any {
-        return CoreAjaxHelper.ENABLE_CROSS_ORIGIN_REQUEST ? 'cors' : 'same-origin';
+        return CoreAjaxHelper1.ENABLE_CROSS_ORIGIN_REQUEST ? 'cors' : 'same-origin';
     }
 
     /**

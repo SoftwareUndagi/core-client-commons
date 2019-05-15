@@ -6,6 +6,7 @@ export * from './utils/CoreAjaxHelper';
 export * from './utils/CoreComponentAjaxUtils';
 export * from './utils/DateUtils'; 
 export * from './utils/IndexedDbUtils'; 
+export * from './utils/CoreClientUtils'
 // export * from './component/index';
 export * from './component/BaseComponent'; 
 export * from './component/BaseListOfValueManager'; 
