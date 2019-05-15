@@ -1,7 +1,6 @@
-import { isNull } from 'base-commons-module'
-import { CoreAjaxHelper  } from '../utils/index' ; 
-import { LOVEnabledComponent , ListOfValueManager , LoadLookupFromCacheDataWrapper , CachedLookupDefinition } from './ListOfValueManager'; 
-import { CommonCommunicationData , LookupWithTokenResponse , LookupWithToken } from '../shared/index'; 
+import { CommonLookupValue, isNull , LookupRequestResultWrapper , LookupRequestData , CommonLookupHeader, LookupWithTokenResponse, LookupWithToken } from 'base-commons-module';
+import { CoreAjaxHelper } from '../utils/index';
+import { CachedLookupDefinition, ListOfValueManager, LoadLookupFromCacheDataWrapper, LOVEnabledComponent } from './ListOfValueManager';
 /**
  * lookup value manager
  */
@@ -18,11 +17,11 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
     /**
      * untuk ajax request ke server
      */
-    ajaxUtils: CoreAjaxHelper ;
+    ajaxUtils: CoreAjaxHelper;
     /**
      * data lookup. di index dengan id lookup. untuk akses di client
      */
-    lookupData: { [id: string]: CommonCommunicationData.CommonLookupValue[] } = {};
+    lookupData: { [id: string]: CommonLookupValue[] } = {};
 
     lovComponents: LOVEnabledComponent[];
     /**
@@ -33,7 +32,7 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
      * nama owner untuk logging
      */
     ownerNameForDebug: string;
-    constructor(ajaxUtils: CoreAjaxHelper ) {
+    constructor(ajaxUtils: CoreAjaxHelper) {
         this.ajaxUtils = ajaxUtils;
         this.lovComponents = [];
         this.indexedLovComponents = {};
@@ -41,23 +40,23 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
     /**
      * load dari cache (1 saja)
      */
-    loadFromCacheSingle(id: string ): Promise<CommonCommunicationData.CommonLookupValue[]> {
-        return new Promise<  CommonCommunicationData.CommonLookupValue[]  >( (accept: any, reject: any) => {
-            this.loadFromCache([id]).then( d => {
-                if ( !isNull(d)) {
-                    accept(d[id]) ; 
-                    return ; 
+    loadFromCacheSingle(id: string): Promise<CommonLookupValue[]> {
+        return new Promise<CommonLookupValue[]>((accept: any, reject: any) => {
+            this.loadFromCache([id]).then(d => {
+                if (!isNull(d)) {
+                    accept(d[id]);
+                    return;
                 }
-                accept(null) ; 
-            }).catch( reject) ; 
+                accept(null);
+            }).catch(reject);
         });
     }
     /**
      * membaca lookup dengan lov id + detail code
      */
-    getLookup(lookupId: string, valueCode: string): CommonCommunicationData.CommonLookupValue {
-        let looks: CommonCommunicationData.CommonLookupValue[]|null = this.lookupData[lookupId] || null;
-        let sNull: any = null ; 
+    getLookup(lookupId: string, valueCode: string): CommonLookupValue {
+        let looks: CommonLookupValue[] | null = this.lookupData[lookupId] || null;
+        let sNull: any = null;
         if (looks == null) {
             return sNull;
         }
@@ -91,7 +90,7 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
      * @param ids id dari lookup untuk di request
      * @param modelName nama model, untuk request token
      */
-    protected requestLookupWithIdWorker(ids: string[], modelName: string, dataId: string, onCacheDataRecieved?: (cache: { [id: string]: CommonCommunicationData.CommonLookupValue[] }) => any): Promise<LookupWithTokenResponse> {
+    protected requestLookupWithIdWorker(ids: string[], modelName: string, dataId: string, onCacheDataRecieved?: (cache: { [id: string]: CommonLookupValue[] }) => any): Promise<LookupWithTokenResponse> {
         if (this.ownerNameForDebug != null && typeof this.ownerNameForDebug !== 'undefined' && this.ownerNameForDebug.length > 0) {
             console.log('[', this.ownerNameForDebug, '] komponen ', this.ownerNameForDebug, '.request lookup dengan isian  : ', ids != null && typeof ids !== 'undefined' ? ids.join(',') : 'null');
         }
@@ -100,8 +99,8 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
                 console.log('[' + this.ownerNameForDebug + ']' + msg, parma);
             }
         };
-        return new Promise<LookupWithTokenResponse>( (accept: (n: LookupWithTokenResponse) => any, reject: (exc: any) => any) => {
-            let sNull: any = null ;
+        return new Promise<LookupWithTokenResponse>((accept: (n: LookupWithTokenResponse) => any, reject: (exc: any) => any) => {
+            let sNull: any = null;
             let rtvl: LookupWithTokenResponse = {
                 lookups: {},
                 token: sNull
@@ -113,7 +112,7 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
                 return;
             }
             this.loadFromCacheAndGenerateLookupRequestWithPromise(ids)
-                .then( (x: LoadLookupFromCacheDataWrapper ) => {
+                .then((x: LoadLookupFromCacheDataWrapper) => {
                     if (x.cachedLookups === null) {
                         x.cachedLookups = {};
                     }
@@ -128,7 +127,7 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
                     if (dataId != null && typeof dataId !== 'undefined' && dataId.length > 0) {
                         url += "?dataId=" + dataId;
                     }
-                    
+
                     let rslAjax: any = null;
                     let finalHandler: () => any = () => {
                         if (rslAjax != null) {
@@ -139,7 +138,7 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
                             } else {
                                 this.processLookupFromServer(rslAjax, x.cachedLookups);
                             }
-            
+
                         } else {
                             logger('#requestLookupWithIdWorker dari server return null untuk lookup');
                         }
@@ -152,17 +151,17 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
                         accept(rtvl);
                     };
                     if ((x.lookupRequests != null && typeof x.lookupRequests !== 'undefined' && x.lookupRequests.length > 0) || (modelName != null && typeof modelName !== 'undefined' && modelName.length > 0)) {
-        
+
                         let stringParam: string = JSON.stringify(x.lookupRequests);
                         logger('#requestLookupWithIdWorker request ke server dengan param :  ', stringParam);
                         this.ajaxUtils.post(url, {
                             lovrequestparams: stringParam
-                        }).then( r1 => {
-                            rslAjax = r1 ; 
-                            finalHandler() ;    
+                        }).then(r1 => {
+                            rslAjax = r1;
+                            finalHandler();
                         });
                     } else {
-                        finalHandler() ;
+                        finalHandler();
                     }
 
                 })
@@ -172,14 +171,14 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
     /**
      * request lookup data dengan lov ids
      */
-    requestLookupDataWithLovIds(ids: string[], onCacheDataRecieved?: (cache: { [id: string]: CommonCommunicationData.CommonLookupValue[] }) => any): Promise<{ [id: string]: CommonCommunicationData.CommonLookupValue[] }> {
-        let sNull: any = null ;
-        return new Promise<{ [id: string]: CommonCommunicationData.CommonLookupValue[] }>( (accept: (n: any) => any, reject: (exc: any) => any) => {
+    requestLookupDataWithLovIds(ids: string[], onCacheDataRecieved?: (cache: { [id: string]: CommonLookupValue[] }) => any): Promise<{ [id: string]: CommonLookupValue[] }> {
+        let sNull: any = null;
+        return new Promise<{ [id: string]: CommonLookupValue[] }>((accept: (n: any) => any, reject: (exc: any) => any) => {
             if (ids == null || typeof ids === 'undefined' || ids.length === 0) {
                 accept(null);
                 return;
             }
-            this.requestLookupWithIdWorker(ids, sNull, sNull , onCacheDataRecieved)
+            this.requestLookupWithIdWorker(ids, sNull, sNull, onCacheDataRecieved)
                 .then((l: LookupWithTokenResponse) => {
                     accept(l.lookups);
                 }).catch(exc => {
@@ -191,13 +190,13 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
      * request lookup data ke server
      */
     requestLookupDataWithPromise(lookupParam: LookupWithToken): Promise<LookupWithTokenResponse> {
-        return new Promise<LookupWithTokenResponse>( (accept: (n: any) => any, reject: (exc: any ) => any) => {
+        return new Promise<LookupWithTokenResponse>((accept: (n: any) => any, reject: (exc: any) => any) => {
             let ids: string[] = lookupParam.lookupIds!;
             if (ids == null || typeof ids === 'undefined') {
                 ids = [];
             }
             let registeredComponentIds: string[] = Object.keys(this.indexedLovComponents);
-            if (registeredComponentIds ) {
+            if (registeredComponentIds) {
                 for (let rComp of registeredComponentIds) {
                     if (ids.indexOf(rComp) < 0) {
                         ids.push(rComp);
@@ -214,9 +213,9 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
     /**
      * request lookup data ke server
      */
-    requestLookupData(lookupParam: LookupWithToken, onComplete?: (indexedLookup: { [id: string]: CommonCommunicationData.CommonLookupValue[] }) => any) {
+    requestLookupData(lookupParam: LookupWithToken, onComplete?: (indexedLookup: { [id: string]: CommonLookupValue[] }) => any) {
         if (onComplete == null || typeof onComplete === "undefined") {
-            onComplete = () => { 
+            onComplete = () => {
                 //
             };
         }
@@ -247,9 +246,9 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
      * proses lookup data, di terima dari server , di masukan kembali ke dalam control dan cache
      * return : cache yang di update
      */
-    processLookupRequestResult(lookups: CommonCommunicationData.LookupRequestResultWrapper[]): { [id: string]: CommonCommunicationData.CommonLookupValue[] } {
+    processLookupRequestResult(lookups: LookupRequestResultWrapper[]): { [id: string]: CommonLookupValue[] } {
         lookups = lookups || null;
-        let rtvl: { [id: string]: CommonCommunicationData.CommonLookupValue[] } = {};
+        let rtvl: { [id: string]: CommonLookupValue[] } = {};
         if (lookups == null) {
             return rtvl;
         }
@@ -281,20 +280,20 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
      * load data dari cache
      * @param ids id dari lookup
      */
-    loadFromCache(ids: string[]): Promise<{ [id: string]: CommonCommunicationData.CommonLookupValue[] }> {
-        return new Promise<{ [id: string]: CommonCommunicationData.CommonLookupValue[] }>( (accept: any, reject: any) => {
+    loadFromCache(ids: string[]): Promise<{ [id: string]: CommonLookupValue[] }> {
+        return new Promise<{ [id: string]: CommonLookupValue[] }>((accept: any, reject: any) => {
             if (isNull(ids) || ids.length === 0) {
                 accept({});
                 return;
             }
-            let rtvl: { [id: string]: CommonCommunicationData.CommonLookupValue[] } = {};
-            let rsptCount: number = 0 ; 
+            let rtvl: { [id: string]: CommonLookupValue[] } = {};
+            let rsptCount: number = 0;
             for (let id of ids) {
                 this.readFromCacheWithPromise(id)
-                    .then( (cachedResult: CachedLookupDefinition) => {
-                        rsptCount++; 
-                        rtvl[cachedResult.id] = cachedResult.lookupData;         
-                        if ( rsptCount === ids.length) {
+                    .then((cachedResult: CachedLookupDefinition) => {
+                        rsptCount++;
+                        rtvl[cachedResult.id] = cachedResult.lookupData;
+                        if (rsptCount === ids.length) {
                             accept(rtvl);
                         }
                     }).catch(reject);
@@ -307,8 +306,8 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
      * ini bisa di pergunakan dalam mode edit. jadinya load temporary item dan request ke server
      */
     loadFromCacheAndGenerateLookupRequestWithPromise(ids: string[] /*onComplete : (reqData : CommonCommunicationData.LookupRequestData []) => any*/): Promise<LoadLookupFromCacheDataWrapper> {
-        let sNull: any = null ;
-        return new Promise<LoadLookupFromCacheDataWrapper>( (accept: (n: LoadLookupFromCacheDataWrapper) => any, reject: (exc: any) => any) => {
+        let sNull: any = null;
+        return new Promise<LoadLookupFromCacheDataWrapper>((accept: (n: LoadLookupFromCacheDataWrapper) => any, reject: (exc: any) => any) => {
             // let ids: string[] = Object.keys(this.indexedLovComponents);
             if (ids == null || ids.length === 0) {
                 accept(sNull);
@@ -321,7 +320,7 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
             let rsptCount: number = 0;
             for (let id of ids) {
                 this.readFromCacheWithPromise(id)
-                    .then ( (cachedResult: CachedLookupDefinition) => {
+                    .then((cachedResult: CachedLookupDefinition) => {
                         if (cachedResult != null && typeof cachedResult !== 'undefined' && cachedResult.version != null) {
                             retval.cachedLookups[id] = cachedResult.lookupData;
                             if (this.checkIsExpired(cachedResult)) {
@@ -330,7 +329,7 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
                                         lovId: cachedResult.id,
                                         version: cachedResult.version
                                     });
-        
+
                             }
                             retval.cachedLookups[cachedResult.id] = cachedResult.lookupData;
                         } else {
@@ -340,23 +339,23 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
                             });
                         }
                         rsptCount++;
-                        if ( rsptCount === ids.length ) {
+                        if (rsptCount === ids.length) {
                             accept(retval);
                         }
 
                     })
                     .catch(reject);
-                
+
             }
-            
+
         });
     }
 
     /**
      * alias dari loadFromCacheAndGenerateLookupRequest
      */
-    loadFromCacheAndGenerateLookupRequestUsingPromiseAlias(): Promise<CommonCommunicationData.LookupRequestData[]> {
-        return new Promise<CommonCommunicationData.LookupRequestData[]>((accept: any, reject: any) => {
+    loadFromCacheAndGenerateLookupRequestUsingPromiseAlias(): Promise<LookupRequestData[]> {
+        return new Promise<LookupRequestData[]>((accept: any, reject: any) => {
             this.loadFromCacheAndGenerateLookupRequest(accept);
         });
     }
@@ -364,14 +363,14 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
      * load data dari lookup dan generate lookup request.
      * ini bisa di pergunakan dalam mode edit. jadinya load temporary item dan request ke server
      */
-    loadFromCacheAndGenerateLookupRequest(onComplete: (reqData: CommonCommunicationData.LookupRequestData[]) => any): any {
-        let sNull: any = null ; 
+    loadFromCacheAndGenerateLookupRequest(onComplete: (reqData: LookupRequestData[]) => any): any {
+        let sNull: any = null;
         let ids: string[] = Object.keys(this.indexedLovComponents);
         if (ids == null || ids.length === 0) {
             onComplete(sNull);
             return;
         }
-        let retval: CommonCommunicationData.LookupRequestData[] = [];
+        let retval: LookupRequestData[] = [];
         let triggerReadFromCache: (index: number) => any = (index: number) => {
             let idLookup: string = ids[index];
             if (idLookup == null || typeof idLookup === "undefined" || idLookup === "") {
@@ -402,7 +401,7 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
     /**
      * assign data lookup. misal ini di dapat dari generic edit --> /dynamics/rest-api/generic-edit/:pojo/:id, di inject langsung data ke dalam lookup
      */
-    assignLookupDataToControls(lookupsData: CommonCommunicationData.CommonLookupHeader[]) {
+    assignLookupDataToControls(lookupsData: CommonLookupHeader[]) {
         if (lookupsData == null || typeof lookupsData === "undefined") {
             return;
         }
@@ -413,31 +412,31 @@ export abstract class BaseListOfValueManager implements ListOfValueManager {
     /**
      * assign lookup ke dalam control
      */
-    abstract assignLookupDataToControlWorker(id: string, lovs: CommonCommunicationData.CommonLookupValue[]): void ;
+    abstract assignLookupDataToControlWorker(id: string, lovs: CommonLookupValue[]): void;
     /**
      * kirim data ke cache( localstorage - chrome storage)
      * @param lookupData
      */
-    abstract sendToCache(lookupData: CommonCommunicationData.CommonLookupHeader): void  ;
+    abstract sendToCache(lookupData: CommonLookupHeader): void;
     /**
      * membaca dari local storage atau chrome storage
      */
-    abstract readFromCache(id: string, next: (cachedResult: CachedLookupDefinition) => any): any  ; 
+    abstract readFromCache(id: string, next: (cachedResult: CachedLookupDefinition) => any): any;
     /**
      * membaca dari local storage atau chrome storage
      */
-    abstract readFromCacheWithPromise(id: string): Promise<CachedLookupDefinition> ; 
+    abstract readFromCacheWithPromise(id: string): Promise<CachedLookupDefinition>;
 
     /**
      * memasukan data dari server ke dalam data client 
      */
-    private processLookupFromServer(data: CommonCommunicationData.LookupRequestResultWrapper[], targetContainer: any): Promise<any> {
+    private processLookupFromServer(data: LookupRequestResultWrapper[], targetContainer: any): Promise<any> {
         let logger: (msg: string, ...parma: any[]) => any = (msg: string, ...parma: any[]) => {
             if (this.ownerNameForDebug != null && typeof this.ownerNameForDebug !== 'undefined' && this.ownerNameForDebug.length > 0) {
                 console.log('[' + this.ownerNameForDebug + ']' + msg, parma);
             }
         };
-        return new Promise<any>( (accept: (n: any) => any, reject: (exc: any) => any) => {
+        return new Promise<any>((accept: (n: any) => any, reject: (exc: any) => any) => {
             if (data == null || typeof data === 'undefined' || data.length === 0) {
                 logger('#processLookupFromServer lookup length 0. di abaikn');
                 accept({});

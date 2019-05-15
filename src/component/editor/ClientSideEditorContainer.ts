@@ -1,6 +1,5 @@
-import { isNull } from 'base-commons-module';
-import { CommonCommunicationData } from '../../shared/index';
-import { MoficationDataResultContainer } from './MoficationDataResultContainer'; 
+import { isNull , BulkDataModificationContainer } from 'base-commons-module';
+import { MoficationDataResultContainer } from './MoficationDataResultContainer';
 /**
  * container client side edit data 
  */
@@ -123,12 +122,12 @@ export class ClientSideEditorContainer<DATA> {
      * generate bulk edit data untuk di kirim ke server
      * @param idField nama field primary key dari model object
      */
-    getBulkModificationResult(idField: string): CommonCommunicationData.BulkDataModificationContainer<DATA, any> {
+    getBulkModificationResult(idField: string): BulkDataModificationContainer<DATA, any> {
         let added: DATA[] = [];
         let edited: DATA[] = [];
         added.push(...this._newCreatedData);
         edited.push(...this._modifiedsData);
-        let rtvl: CommonCommunicationData.BulkDataModificationContainer<DATA, any> = {
+        let rtvl: BulkDataModificationContainer<DATA, any> = {
             appendedItems: added,
             modifiedItems: edited,
             erasedItems: []

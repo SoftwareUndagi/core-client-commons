@@ -1,9 +1,8 @@
-import { isNull } from 'base-commons-module';
-import { CommonCommunicationData } from '../../shared/index';
+import { isNull, CommonLookupValue } from 'base-commons-module';
 import { BaseComponent } from '../BaseComponent';
 import { ListOfValueManager } from '../ListOfValueManager';
 import { EditorInputElement } from './CommonsInputElement';
-import { editorsupport } from './editorsupport';
+import { EditorSubPanelHandler } from './EditorSubPanelHandler';
 export interface CoreBaseEditorSegmentPanelProps <DATA> {
 
     /**
@@ -23,7 +22,7 @@ export interface CoreBaseEditorSegmentPanelProps <DATA> {
     /**
      * container lookup
      */
-    lookupContainers: {[id: string]: CommonCommunicationData.CommonLookupValue[] }; 
+    lookupContainers: {[id: string]: CommonLookupValue[] }; 
     /**
      * lookup manager pada parent 
      */
@@ -31,7 +30,7 @@ export interface CoreBaseEditorSegmentPanelProps <DATA> {
     /**
      * assign data lookup
      */
-    assignLookupData: (lovId: string , lookups:  CommonCommunicationData.CommonLookupValue[]) => any ; 
+    assignLookupData: (lovId: string , lookups:  CommonLookupValue[]) => any ; 
     /**
      * untuk update state pada edited data pada container dari segment
      * @param method untuk update state. anda perlu update pada bagian data saja, update state akan di handle 
@@ -44,11 +43,11 @@ export interface CoreBaseEditorSegmentPanelProps <DATA> {
     /**
      * register sub editor ke parent
      */
-    registerToParentEditor: (  subEditor: editorsupport.EditorSubPanelHandler<DATA> ) => any ; 
+    registerToParentEditor: (  subEditor: EditorSubPanelHandler<DATA> ) => any ; 
     /**
      * unregister dari parent
      */
-    unRegisterFromParentEditor: (  subEditor: editorsupport.EditorSubPanelHandler<DATA> ) => any ; 
+    unRegisterFromParentEditor: (  subEditor: EditorSubPanelHandler<DATA> ) => any ; 
 }
 export interface CoreBaseEditorSegmentPanelState <DATA> {
     dummyVar ?: DATA ; 
@@ -57,7 +56,7 @@ export interface CoreBaseEditorSegmentPanelState <DATA> {
 /**
  * segment helper dari editor. agar bisa break down editor dalam component-component
  */
-export abstract class CoreBaseEditorSegmentPanel<DATA , PROPS extends CoreBaseEditorSegmentPanelProps<DATA> , STATE extends CoreBaseEditorSegmentPanelState<DATA>>  extends BaseComponent <PROPS , STATE> implements editorsupport.EditorSubPanelHandler<DATA> {
+export abstract class CoreBaseEditorSegmentPanel<DATA , PROPS extends CoreBaseEditorSegmentPanelProps<DATA> , STATE extends CoreBaseEditorSegmentPanelState<DATA>>  extends BaseComponent <PROPS , STATE> implements EditorSubPanelHandler<DATA> {
     /**
      * controls input
      */

@@ -2,8 +2,8 @@
   "name": "core-client-commons",
   "version": "1.0.0",
   "description": "Core client lib, react + react-native common denominator",
-  "main": "build/lib/index.js",
-  "types": "build/lib/index.d.ts",
+  "main": "build/lib/index.js", 
+  "types": "build/types/index.d.ts"  , 
   "keywords": [
     "plain-js"
   ],

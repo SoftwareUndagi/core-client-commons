@@ -1,8 +1,7 @@
 import { ListOfValueManager } from './ListOfValueManager';
-import { CommonCommunicationData  } from '../shared/index';
 import { BaseComponent ,   BaseComponentState } from './BaseComponent';
 import {  EditorInputElement , CustomValidationFailureResult } from './editor/CommonsInputElement';
-import { isNull , ObjectUtils } from 'base-commons-module'
+import { isNull , ObjectUtils, CommonLookupValue } from 'base-commons-module'
 import {  CoreAjaxHelper   } from '../utils/index';
 import { CoreBaseSubEditorPanel } from './editor/CoreBaseSubEditorPanel';
 
@@ -21,7 +20,7 @@ export interface BaseEditorState<DATA> extends BaseComponentState {
     /**
      * lookup di index
      */
-    lookups ?: {[id: string]: CommonCommunicationData.CommonLookupValue[] } ;
+    lookups ?: {[id: string]: CommonLookupValue[] } ;
     /**
      * sub editors
      */
@@ -95,7 +94,7 @@ export abstract class BaseReactEditorPanel<DATA  , PROP , STATE extends BaseEdit
     /**
      * default worker untuk assign loookup. ini akan otomatis menaruh data ke dalam state
      */
-    assignLookupData:  (lookupId: string , lookupData: CommonCommunicationData.CommonLookupValue[] ) => any = (lookupId: string , lookupData: CommonCommunicationData.CommonLookupValue[] ) => {
+    assignLookupData:  (lookupId: string , lookupData: CommonLookupValue[] ) => any = (lookupId: string , lookupData: CommonLookupValue[] ) => {
         //       
     }
     
@@ -161,7 +160,7 @@ export abstract class BaseReactEditorPanel<DATA  , PROP , STATE extends BaseEdit
                    st => st.subEditors!.splice(idx , 1 ));
            }
        } else {
-           editor.assignLookupData = (lookupId: string , lookupData: CommonCommunicationData.CommonLookupValue[] ) => {
+           editor.assignLookupData = (lookupId: string , lookupData: CommonLookupValue[] ) => {
                this.assignLookupData(lookupId , lookupData );
            } ;
            this.setStateHelper( st => st.subEditors!.push(editor)); 
@@ -251,7 +250,7 @@ export abstract class BaseReactEditorPanel<DATA  , PROP , STATE extends BaseEdit
     /**
      * container data lookup
      */    
-    get lookupContainers ():  {[id: string ]: CommonCommunicationData.CommonLookupValue[] } {
+    get lookupContainers ():  {[id: string ]: CommonLookupValue[] } {
         return this.state.lookups !; 
     }
     

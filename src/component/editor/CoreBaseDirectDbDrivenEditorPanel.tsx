@@ -1,10 +1,8 @@
 // import * as React from "react";
 import { ReactEditorBannerMessage } from './EditorComponent';
 import { CoreBaseReactEditorPanel, CoreBaseReactEditorPanelState } from "./CoreBaseReactEditorPanel";
-import { CommonCommunicationData, LookupWithTokenResponse } from "../../shared/index";
 import { AdditionalEditorTask } from './EditorComponentData';
-import { isNull, ObjectUtils } from 'base-commons-module';
-import { LookupWithToken } from '../../shared/index';
+import { isNull, ObjectUtils, CommonLookupValue, EditDataWrapper, LookupRequestResultWrapper, IncludeModelParam, LookupWithToken, LookupWithTokenResponse, LookupRequestData } from 'base-commons-module';
 import { CustomValidationFailureResult } from "./CommonsInputElement";
 /**
  * state untuk data id
@@ -194,7 +192,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
      * @param lookups data lookup dari cache atau server
      * @param targetState state tujuan anda perlu menyalin, tidak perlu set state
      */
-    additionalTaskOnLookupRecieved(targetState: STATE, lookups: { [id: string]: CommonCommunicationData.CommonLookupValue[] }) {
+    additionalTaskOnLookupRecieved(targetState: STATE, lookups: { [id: string]: CommonLookupValue[] }) {
         //
     }
     /**
@@ -315,7 +313,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
     /**
      * model yang di include pada saat read. override ini kalau memang memerlukan field tambahan
      */
-    getIncludeModels(): CommonCommunicationData.IncludeModelParam[] {
+    getIncludeModels(): IncludeModelParam[] {
         let s: any = null;
         return s;
     }
@@ -408,7 +406,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                     });
                 }
             },
-            onLookupAccepted: (indexedLookup: { [id: string]: CommonCommunicationData.CommonLookupValue[] }) => {
+            onLookupAccepted: (indexedLookup: { [id: string]: CommonLookupValue[] }) => {
                 if (!isNull(indexedLookup)) {
                     let keys: string[] = Object.keys(indexedLookup);
                     if (keys.length > 0) {
@@ -424,27 +422,13 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
         });
 
     }
-    /**
-     * worker untuk add new data. pergunakan hanya ini untuk add new data
-     */
-    addNewData(newData: DATA, callback?: () => any) {
-        this.addNewDataWorker(newData)
-            .then(d => {
-                if (!isNull(callback)) {
-                    callback!();
-                }
-            })
-            .catch(exc => {
-                console.error('gagal add : ', exc);
-            });
-    }
 
     /**
      * worker untuk membuat data
      */
-    addNewDataWorker(newData: DATA): Promise<any> {
+    addNewData(newData: DATA): Promise<any> {
         let s: any = null;
-        return new Promise<any>((accept: (n: any) => any, reject: (exc: any) => any) => {
+        return new Promise<any>(async (accept: (n: any) => any, reject: (exc: any) => any) => {
             let completionTaskAndDoAccept: () => any = () => {
                 setTimeout(
                     () => {
@@ -458,6 +442,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
             };
             this.setStateHelper(st => {
                 st.editorState = 'none';
+                st.editingModeEnabled = false ; 
             });
             let ids: string[] = this.lookupManager.getLookupIds();
             if (!this.lovRequested && !isNull(ids) && ids.length > 0) {
@@ -469,11 +454,11 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                     onTokenAccepted: (tkn: string) => {
                         //
                     },
-                    onLookupAccepted: (indexedLookup: { [id: string]: CommonCommunicationData.CommonLookupValue[] }) => {
+                    onLookupAccepted: (indexedLookup: { [id: string]: CommonLookupValue[] }) => {
                         //
                     }
                 }).then((d: LookupWithTokenResponse) => {
-                    this.setStateHelper(
+                    this.setStateHelperAsync(
                         sln => {
                             sln.editorDataToken = d.token;
                             if (isNull(sln.lookups)) {
@@ -487,13 +472,11 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                             }
                             this.additionalTaskOnLookupRecieved(sln, d.lookups);
                             sln.currentEditedData = newData;
+                            sln.editingModeEnabled = true ; 
                             sln.editorState = 'add';
                             sln.id = s;
 
-                        },
-                        () => {
-                            completionTaskAndDoAccept();
-                        });
+                        }).then(completionTaskAndDoAccept) ;
                 }).catch(reject);
             } else {
                 this.requestEditDataTokenWithPromise(s).then(token => {
@@ -502,6 +485,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
                             sln.editorDataToken = token;
                             sln.currentEditedData = newData;
                             sln.editorState = 'add';
+                            sln.editingModeEnabled = true ; 
                             sln.id = s;
                         },
                         () => {
@@ -684,141 +668,14 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
         });
     }
 
-    requestDataForEditOld(dataID: ID, editorState: string, additionalEditTasks: AdditionalEditorTask<DATA>[], onDataNotFoundHandler: (notFoundFlag: boolean) => any): Promise<any> {
-        let sNull: any = null;
-        return new Promise<any>(async (accept: (n: any) => any , reject: (exc: any) => any  ) => {
-            if (this.state.editorState !== 'none') {
-                this.setStateHelper(st => { st.editorState = 'none'; });
-            }
-            let sw: any = editorState;
-            // handler kalau data sudah di terima. ini untuk update state
-            let proccesorEditData: (targetSate: STATE, editData: CommonCommunicationData.EditDataWrapper<DATA>) => any = (targetSate: STATE, editData: CommonCommunicationData.EditDataWrapper<DATA>) => {
-                this.processReceivedLookupData(targetSate, editData.lookups!);
-                /*
-                let lookups: CommonCommunicationData.LookupRequestResultWrapper[] = editData.lookups!;
-                if (!isNull(lookups)) {
-                    // update cache local
-                    let updatedCached: { [id: string]: CommonCommunicationData.CommonLookupValue[] } = this.lookupManager.processLookupRequestResult(lookups);
-                    if (isNull(targetSate.lookups)) {
-                        targetSate.lookups = {};
-                    }
-                    ObjectUtils.copyField(updatedCached, targetSate.lookups);
-                    this.additionalTaskOnLookupRecieved(targetSate, targetSate.lookups!);
-                }*/
-                targetSate.editorState = editorState;
-                targetSate.currentEditedData = editData.editedData!;
-                targetSate.editorDataToken = editData.editDataToken;
-                targetSate.id = dataID;
-            };
-            // facade kalau edit data di terima
-            let editDataAcceptedHandler: (editData: CommonCommunicationData.EditDataWrapper<DATA>) => any = (editData: CommonCommunicationData.EditDataWrapper<DATA>) => {
-                if (isNull(editData)) {
-                    onDataNotFoundHandler(true);
-                    accept({});
-                    return;
-                } else {
-                    onDataNotFoundHandler(false);
-                }
-                this.setStateHelper(
-                    salin => {
-                        proccesorEditData(salin, editData);
-                        return salin;
-                    },
-                    () => {
-                        this.applyDataToControls(editData.editedData!);
-                        for (var xxEdit of additionalEditTasks) {
-                            xxEdit(editData.editedData!);
-                        }
-                        accept({});
-                    });
-            };
-            let rejectWrapper: (exc: any) => any = (exc: any) => {
-                console.error('[CoreBaseDirectDbDrivenEditorPanel#requestDataForEdit] gagal memproses edit data, error : ', exc);
-                // let errorCode: string = exc.errorCode;
-                // let errorMessage: string = exc.message;
-                let empty: any = {};
-                this.setStateHelper(
-                    salin => {
-                        salin.editorState = sw;
-                        salin.currentEditedData = empty;
-                        return salin;
-                    },
-                    () => {
-                        if (additionalEditTasks != null) {
-                            for (var tsk of additionalEditTasks) {
-                                tsk(sNull);
-                            }
-                        }
-                        onDataNotFoundHandler(true);
-                        reject(exc);
-                    });
-            };
-
-            let url: string = this.generateGetDataUrl(this.getModelName(), dataID);
-            let incs: CommonCommunicationData.IncludeModelParam[] = this.getIncludeModels() || null;
-            if (incs != null && incs.length > 0) {
-                url += "&includedModels=" + btoa(JSON.stringify(incs));
-            }
-            if (editorState === "view") {
-                url = url + "&includeToken=N";
-            }
-            if (this.lovRequested || this.lookupManager.getLookupIds().length === 0) { // kalau lookup sudah di request
-                console.log("[CoreBaseDirectDbDrivenEditorPanel] lovRequested :  ", this.lovRequested, " lookup size : ", this.lookupManager.getLookupIds().length, ".edit tanpa data lookup di kirim ke server");
-                /*this.ajaxUtils.get(url)
-                    .then( (noLovRequest: CommonCommunicationData.EditDataWrapper<DATA>) => {
-                        editDataAcceptedHandler(noLovRequest);
-                    })
-                    .catch(reject);
-                */
-                this.requestDataForEditViaAjaxWorker({ id: dataID, editorState: editorState as any, lookupRequestParams: null! })
-                    .then((withLovReq: CommonCommunicationData.EditDataWrapper<DATA>) => editDataAcceptedHandler(withLovReq))
-                    .catch(rejectWrapper);
-                return;
-            } else {
-                this.lovRequested = true;
-                this.lookupManager.loadFromCache(this.lookupManager.getLookupIds())
-                    .then((lookupCached: { [id: string]: CommonCommunicationData.CommonLookupValue[] }) => {
-                        if (!isNull(lookupCached)) {
-                            this.setStateHelper(st => {
-                                ObjectUtils.copyField(lookupCached, st.lookups);
-                            });
-                        }
-                        this.lookupManager.loadFromCacheAndGenerateLookupRequestUsingPromiseAlias()
-                            .then((lookupReqs: CommonCommunicationData.LookupRequestData[]) => {
-                                /*lookupReqs = lookupReqs || null;
-                                if (lookupReqs == null || lookupReqs.length === 0) {
-                                    this.ajaxUtils.get(url).then( (a: CommonCommunicationData.EditDataWrapper<DATA>) => {
-                                        editDataAcceptedHandler(a);
-                                    });
-                                    return;
-                                }
-                                url = url + "&lookupFields=" + btoa(JSON.stringify(lookupReqs));
-                                console.log("[CoreBaseDirectDbDrivenEditorPanel] lookup size : ", this.lookupManager.getLookupIds().length, ".ke server di request dengan params : ", lookupReqs);
-                                this.ajaxUtils.get(url).then( (withLovReq: CommonCommunicationData.EditDataWrapper<DATA>) => {
-                                    editDataAcceptedHandler(withLovReq);
-                                } ).catch(rejectWrapper );
-                              */
-                                this.requestDataForEditViaAjaxWorker({ id: dataID, editorState: editorState as any, lookupRequestParams: lookupReqs })
-                                    .then((withLovReq: CommonCommunicationData.EditDataWrapper<DATA>) => editDataAcceptedHandler(withLovReq))
-                                    .catch(rejectWrapper);
-                            })
-                            .catch(rejectWrapper);
-                    })
-                    .catch(rejectWrapper);
-                return;
-            }
-        });
-
-    }
-
     requestDataForEdit(dataID: ID, editorState: string, additionalEditTasks: AdditionalEditorTask<DATA>[], onDataNotFoundHandler: (notFoundFlag: boolean) => any): Promise<any> { 
         return new Promise<any>(async (accept: (n: any) => any , reject: (exc: any) => any  ) => {
             
-            let lookupReqs: CommonCommunicationData.LookupRequestData[] = null! ; 
+            let lookupReqs: LookupRequestData[] = null! ; 
             if (!this.lovRequested &&  this.lookupManager.getLookupIds().length >  0) {
                 lookupReqs = await this.lookupManager.loadFromCacheAndGenerateLookupRequestUsingPromiseAlias() ; 
             }
-            let rslt: CommonCommunicationData.EditDataWrapper<DATA> = null! ; 
+            let rslt: EditDataWrapper<DATA> = null! ; 
             try {
                 rslt = await this.requestDataForEditViaAjaxWorker({ id: dataID, editorState: editorState as any, lookupRequestParams: lookupReqs })
             } catch ( exc ) {
@@ -1333,11 +1190,11 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
         /**
          * lookup 
          */
-        lookupRequestParams: CommonCommunicationData.LookupRequestData[]
-    }): Promise<CommonCommunicationData.EditDataWrapper<DATA>> {
+        lookupRequestParams: LookupRequestData[]
+    }): Promise<EditDataWrapper<DATA>> {
         let { id, editorState, lookupRequestParams } = parameter;
         let url: string = this.generateGetDataUrl(this.getModelName(), id);
-        let incs: CommonCommunicationData.IncludeModelParam[] = this.getIncludeModels() || null;
+        let incs: IncludeModelParam[] = this.getIncludeModels() || null;
         if (incs != null && incs.length > 0) {
             url += "&includedModels=" + btoa(JSON.stringify(incs));
         }
@@ -1357,11 +1214,11 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
      * @param targetState state target update, ini di dapat dari setStateHelper
      * @param lookups data update lookups
      */
-    protected processReceivedLookupData: (targetState: STATE, lookups: CommonCommunicationData.LookupRequestResultWrapper[]) => any = (targetState: STATE, lookups: CommonCommunicationData.LookupRequestResultWrapper[]) => {
+    protected processReceivedLookupData: (targetState: STATE, lookups: LookupRequestResultWrapper[]) => any = (targetState: STATE, lookups: LookupRequestResultWrapper[]) => {
         if (!lookups || lookups.length === 0) {
             return;
         }
-        let updatedCached: { [id: string]: CommonCommunicationData.CommonLookupValue[] } = this.lookupManager.processLookupRequestResult(lookups);
+        let updatedCached: { [id: string]: CommonLookupValue[] } = this.lookupManager.processLookupRequestResult(lookups);
         if (!targetState.lookups) {
             targetState.lookups = {};
         }
@@ -1374,7 +1231,7 @@ export abstract class CoreBaseDirectDbDrivenEditorPanel<DATA, ID, PROP extends C
      * @param editData data untuk editor
      * @param additionalEditTasks task after edit
      */
-    protected editDataAcceptedHandler(dataID: ID, editorState: string, editData: CommonCommunicationData.EditDataWrapper<DATA>, additionalEditTasks: AdditionalEditorTask<DATA>[]): Promise<any> {
+    protected editDataAcceptedHandler(dataID: ID, editorState: string, editData: EditDataWrapper<DATA>, additionalEditTasks: AdditionalEditorTask<DATA>[]): Promise<any> {
         return new Promise<any>((accept: (n: any) => any, reject: (n: any) => any) => {
             this.setStateHelper(
                 targetSate => {

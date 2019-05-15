@@ -1,6 +1,5 @@
 
-import { isNull } from 'base-commons-module';
-import { CommonCommunicationData } from '../../shared/index';
+import { isNull, CommonLookupValue } from 'base-commons-module';
 import { BaseComponent, BaseComponentProps, BaseComponentState } from '../BaseComponent';
 import { ListOfValueManager } from '../ListOfValueManager';
 import { CustomValidationFailureResult, EditorInputElement } from './CommonsInputElement';
@@ -26,7 +25,7 @@ export interface CoreBaseSubEditorPanelProps extends BaseComponentProps {
     /**
      * container lookup data. ini di ambil dari state induk dari editor
      */
-    lookupContainers: {[id: string ]: CommonCommunicationData.CommonLookupValue[] } ; 
+    lookupContainers: {[id: string ]: CommonLookupValue[] } ; 
     /**
      * worker untuk register ke parent editor
      */
@@ -67,7 +66,7 @@ export abstract class CoreBaseSubEditorPanel<DATA , PROPS extends CoreBaseSubEdi
     /**
      * default worker untuk assign loookup. ini akan otomatis menaruh data ke dalam state
      */
-    assignLookupData:  (lookupId: string , lookupData: CommonCommunicationData.CommonLookupValue[] ) => any ; 
+    assignLookupData:  (lookupId: string , lookupData: CommonLookupValue[] ) => any ; 
 
     constructor(props: PROPS) {
         super(props) ; 

@@ -1,7 +1,6 @@
 // export * from './shared/index' ;
 export * from './shared/CommonClientConstant';
 export * from './shared/CommonClientData'; 
-export * from './shared/CommonCommunicationData'; 
 export * from './shared/SecurityData'; 
 export * from './utils/CoreAjaxHelper'; 
 export * from './utils/CoreComponentAjaxUtils';
@@ -21,6 +20,3 @@ export * from './component/editor/CoreBaseReactMemoryDrivenEditorPanel';
 export * from './component/editor/CoreBaseSubEditorPanel'; 
 export * from './component/editor/EditorComponent'; 
 export * from './component/editor/EditorComponentData'; 
-export * from './component/editor/editorsupport'; 
-export * from './component/editor/MoficationDataResultContainer'; 
-export { extractParameterListFromString } from 'base-commons-module'; 

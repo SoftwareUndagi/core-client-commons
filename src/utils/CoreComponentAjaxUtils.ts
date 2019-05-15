@@ -1,7 +1,7 @@
 
-import { CommonCommunicationData } from  '../shared/CommonCommunicationData';
 
 import { CoreAjaxHelper } from './CoreAjaxHelper';  
+import { IncludeModelParam, PagedDataRequest, PagedDataQueryResult } from 'base-commons-module';
 
 /**
  * ajax utils untuk core ajax(bawaan)
@@ -9,21 +9,6 @@ import { CoreAjaxHelper } from './CoreAjaxHelper';
 export class CoreComponentAjaxUtils {
     constructor(private ajaxUtils: CoreAjaxHelper ) {}
 
-    /**
-     * worker membaca data. data di baca dengan get
-     * @param id id dari data yang perlu di baca( string atau number)
-     * @param modelName nama model yang di handle dengan sequelize
-     * @param includeModels association yang di sertakan 
-     * @param onDataRecieved handler data recieved
-     * @param onFailure handler ajax failed
-     */
-    getDataById<DATA> ( id: number|string , modelName: string , includeModels: CommonCommunicationData.IncludeModelParam[],  onDataRecieved: (data: DATA) => any  ,  onFailure: (code: string, message: string , exc: any ) => any ) {
-        let url: string = '/dynamics/rest-api/generic/'  + modelName + '/' + id + "?apiMarker=" + new Date().getTime() + "&" ; 
-        if ( includeModels != null && typeof includeModels !== 'undefined' && includeModels.length > 0) {
-            url += 'includedModels=' + btoa(JSON.stringify(includeModels)) ; 
-        }
-        this.ajaxUtils.sendAjaxGet(url , onDataRecieved , onFailure);
-    }
     /**
      * mengecek kalau ada constraint violation dalam data
      * @param modelName {string} nama model yang perlu di cek model nya 
@@ -48,26 +33,9 @@ export class CoreComponentAjaxUtils {
         }); 
     }
     /**
-     * worker membaca ata dengan paged
-     */
-    getPagedData <DATA> ( 
-        param: CommonCommunicationData.PagedDataRequest<DATA>, 
-        onDataRecieved: (data: CommonCommunicationData.PagedDataQueryResult<DATA> ) => any ,   
-        onFailure: (code: string, message: string , exc: any ) => any  , url ?: string ) {
-        let actUrl: string = '/dynamics/core/get-paged-data.svc' ; 
-        if ( url != null && typeof url !== 'undefined') {
-            actUrl = url ; 
-        }
-        if ( param.page == null || typeof param.page === 'undefined') {
-            param.page = 0 ; 
-        }
-        let jsString: string = btoa(JSON.stringify(param)) ;    
-        this.ajaxUtils.sendAjaxPost(  actUrl, {q : jsString} , onDataRecieved , onFailure);
-    }
-    /**
      * membaca data single. data di kembalikan dengan promise
      */
-    getDataByIdWithPromise<DATA>(id: number | string, modelName: string, includeModels?: CommonCommunicationData.IncludeModelParam[]): Promise<DATA> {
+    getDataById<DATA>(id: number | string, modelName: string, includeModels?: IncludeModelParam[]): Promise<DATA> {
         let url: string = '/dynamics/rest-api/generic/'  + modelName + '/' + id + "?apiMarker=" + new Date().getTime() + "&" ; 
         if ( includeModels != null && typeof includeModels !== 'undefined' && includeModels.length > 0) {
             url += 'includedModels=' + btoa(JSON.stringify(includeModels)) ; 
@@ -79,7 +47,7 @@ export class CoreComponentAjaxUtils {
      * @param requestorModuleName nama module yang di merequest data
      * @param param parameter ajax request
      */
-    getPagedDataWithPromise<DATA>  (param: CommonCommunicationData.PagedDataRequest<DATA> , requestorModuleName  ?: string ): Promise<CommonCommunicationData.PagedDataQueryResult<DATA>> {
+    getPagedData<DATA>  (param: PagedDataRequest<DATA> , requestorModuleName  ?: string ): Promise<PagedDataQueryResult<DATA>> {
         if ( param.page === null || typeof param.page === 'undefined') {
             param.page = 0 ; 
         }
@@ -103,17 +71,17 @@ export class CoreComponentAjaxUtils {
      * membaca data batch. semua data di baca dari database . di kembalikan sekalian dalam single array. 
      * jadinya looping pembacaand ata di lakukan dlaam method ini. hasil di kembalikan langsung dalam data yang sudah ready
      */
-    getAllDataBatched<DATA> (param: CommonCommunicationData.PagedDataRequest<DATA>, onDataRecieved ?: ( recievedData: DATA[] ) => any ): Promise<DATA[]> {
+    getAllDataBatched<DATA> (param: PagedDataRequest<DATA>, onDataRecieved ?: ( recievedData: DATA[] ) => any ): Promise<DATA[]> {
         return new Promise<DATA[]> (  ( accept: (d: DATA[] ) => any , reject: (exc: any ) => any   ) => {
             if ( param.page == null || typeof param.page === 'undefined') {
                 param.page = 0 ; 
             }
             let d: DATA[] = [] ;
-            let fetchHelper: (  param: CommonCommunicationData.PagedDataRequest<DATA> ) => any  = (  paramInternal: CommonCommunicationData.PagedDataRequest<DATA> ) => {
+            let fetchHelper: (  param: PagedDataRequest<DATA> ) => any  = (  paramInternal: PagedDataRequest<DATA> ) => {
                 let jsString: string = btoa(JSON.stringify(paramInternal)) ;    
                 this.ajaxUtils.post('/dynamics/core/get-paged-data.svc'  , {
                     q : jsString
-                } ).then( (r: CommonCommunicationData.PagedDataQueryResult<DATA> ) => {
+                } ).then( (r: PagedDataQueryResult<DATA> ) => {
                     if ( !this.isNull(onDataRecieved)) {
                         onDataRecieved!(r.rows!); 
                     }

@@ -1,11 +1,10 @@
-import { isNull } from 'base-commons-module';
-import { CommonCommunicationData } from '../../shared/index';
+import { isNull, CommonLookupValue } from 'base-commons-module';
 import { CoreAjaxHelper } from '../../utils/index';
 import { BaseComponent, BaseComponentState } from '../BaseComponent';
 import { ListOfValueManager } from '../ListOfValueManager';
 import { CustomValidationFailureResult, EditorInputElement } from './CommonsInputElement';
 import { CoreBaseSubEditorPanel } from './CoreBaseSubEditorPanel';
-import { editorsupport } from "./editorsupport";
+import { EditorSubPanelHandler } from './EditorSubPanelHandler';
 
 /**
  * editor state untuk editor data
@@ -24,7 +23,7 @@ export interface CoreBaseReactEditorPanelState<DATA> extends BaseComponentState 
     /**
      * lookup di index
      */
-    lookups ?: {[id: string]: CommonCommunicationData.CommonLookupValue[] } ;
+    lookups ?: {[id: string]: CommonLookupValue[] } ;
     /**
      * sub editors
      */
@@ -46,7 +45,7 @@ export abstract class CoreBaseReactEditorPanel<DATA  , PROP , STATE extends Core
     /**
      * handler sub editor. ini untuk editor segments
      */
-    protected subEditorHandlers: Array< editorsupport.EditorSubPanelHandler<DATA>> = [] ; 
+    protected subEditorHandlers: Array<EditorSubPanelHandler<DATA>> = [] ; 
     /**
      * untuk lookup
      */
@@ -104,13 +103,13 @@ export abstract class CoreBaseReactEditorPanel<DATA  , PROP , STATE extends Core
     /**
      * default worker untuk assign loookup. ini akan otomatis menaruh data ke dalam state
      */
-    assignLookupData:  (lookupId: string , lookupData: CommonCommunicationData.CommonLookupValue[] ) => any = (lookupId: string , lookupData: CommonCommunicationData.CommonLookupValue[] ) => {
+    assignLookupData:  (lookupId: string , lookupData: CommonLookupValue[] ) => any = (lookupId: string , lookupData: CommonLookupValue[] ) => {
         //
     }
     /**
      * handler untuk register sub editor handler
      */
-    protected registerSubEditorHandler: ( handler: editorsupport.EditorSubPanelHandler<DATA> ) => any  = ( handler: editorsupport.EditorSubPanelHandler<DATA> ) => {
+    protected registerSubEditorHandler: ( handler: EditorSubPanelHandler<DATA> ) => any  = ( handler: EditorSubPanelHandler<DATA> ) => {
         if ( this.subEditorHandlers.indexOf(handler) < 0 ) {
             this.subEditorHandlers.push(handler) ; 
         }
@@ -118,7 +117,7 @@ export abstract class CoreBaseReactEditorPanel<DATA  , PROP , STATE extends Core
     /**
      * handler untuk unregister sub editor dari parent
      */
-    protected unRegisterSubEditorHandler: ( handler: editorsupport.EditorSubPanelHandler<DATA> ) => any = ( handler: editorsupport.EditorSubPanelHandler<DATA> ) => {
+    protected unRegisterSubEditorHandler: ( handler: EditorSubPanelHandler<DATA> ) => any = ( handler: EditorSubPanelHandler<DATA> ) => {
         if ( this.subEditorHandlers.indexOf(handler) >= 0) {
             this.subEditorHandlers.splice(this.subEditorHandlers.indexOf(handler), 1 ) ; 
         }
@@ -162,7 +161,7 @@ export abstract class CoreBaseReactEditorPanel<DATA  , PROP , STATE extends Core
                     st => st.subEditors!.splice(idx , 1 ) );
             }
         } else {
-            editor.assignLookupData = (lookupId: string , lookupData: CommonCommunicationData.CommonLookupValue[] ) => {
+            editor.assignLookupData = (lookupId: string , lookupData: CommonLookupValue[] ) => {
                 this.assignLookupData(lookupId , lookupData );
             } ;
             this.setStateHelper( st => st.subEditors!.push(editor)); 
@@ -275,7 +274,7 @@ export abstract class CoreBaseReactEditorPanel<DATA  , PROP , STATE extends Core
     /**
      * container data lookup
      */    
-    get lookupContainers ():  {[id: string ]: CommonCommunicationData.CommonLookupValue[] } {
+    get lookupContainers ():  {[id: string ]: CommonLookupValue[] } {
         return this.state.lookups! ; 
     }
     

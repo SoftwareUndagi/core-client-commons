@@ -1,4 +1,5 @@
-import { CommonCommunicationData } from '../../shared/index';
+import { CommonLookupValue } from "base-commons-module";
+
 
 /**
  * error validasi mandatory gagal
@@ -146,7 +147,7 @@ export function isVariableNull (data: any ): boolean  {
 /**
  * pencari lookup dari container. di pisah untuk menghindari redundansi pengecekan
  */
-export function findLookupByCode ( lookupId: string , lookupValue: string , lookupContainer: {[id: string ]: CommonCommunicationData.CommonLookupValue[]}   ): CommonCommunicationData.CommonLookupValue {
+export function findLookupByCode ( lookupId: string , lookupValue: string , lookupContainer: {[id: string ]: CommonLookupValue[]}   ): CommonLookupValue {
     let n: any = null ; 
     if ( isVariableNull(lookupId) || lookupId.length === 0 ) {
         return n ; 
@@ -158,7 +159,7 @@ export function findLookupByCode ( lookupId: string , lookupValue: string , look
         return n ; 
     }
 
-    let lks: CommonCommunicationData.CommonLookupValue[] = lookupContainer[lookupId] ; 
+    let lks: CommonLookupValue[] = lookupContainer[lookupId] ; 
     for ( var lk of lks ) {
         if ( lk.detailCode === lookupValue) {
             return lk ; 

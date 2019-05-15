@@ -1,5 +1,4 @@
-import { isNull } from 'base-commons-module';
-import { CommonCommunicationData } from "../../shared/index";
+import { isNull, CommonLookupValue } from 'base-commons-module';
 import { ClientSideEditorContainer } from './ClientSideEditorContainer';
 import { CustomValidationFailureResult } from "./CommonsInputElement";
 import { CoreBaseReactEditorPanel, CoreBaseReactEditorPanelState } from './CoreBaseReactEditorPanel';
@@ -330,7 +329,7 @@ export abstract class CoreBaseReactMemoryDrivenEditorPanel<DATA, PROPS extends C
     componentDidMount() {
         console.log('[CoreBaseReactMemoryDrivenEditorPanel#componentDidMount] default componentDidMount di panggil untuk editor');
         this.lookupManager.requestLookupData({
-            onLookupAccepted: (indexedLookup: { [id: string]: CommonCommunicationData.CommonLookupValue[] }) => {
+            onLookupAccepted: (indexedLookup: { [id: string]: CommonLookupValue[] }) => {
                 if (!isNull(indexedLookup)) {
                     let keys: string[] = Object.keys(indexedLookup);
                     if (keys.length > 0) {
